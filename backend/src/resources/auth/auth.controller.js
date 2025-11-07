@@ -15,7 +15,7 @@ export const AuthController = {
                 });
             }
 
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
 
@@ -42,9 +42,13 @@ export const AuthController = {
                 speciality,
             });
 
+            const token = jwt.sign({ id: data._id, role: data.role }, process.env.JWT_SECRET, {
+                expiresIn: "30d",
+            });
+
             return ApiResponse.success(res, {
                 message: "Usuario registrado correctamente",
-                value: data,
+                value: { user: data, token },
                 status: 201,
             });
         } catch (error) {
@@ -97,7 +101,7 @@ export const AuthController = {
 
     googleCallback: (req, res) => {
         const user = req.user;
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
             expiresIn: "30d",
         });
 

@@ -4,14 +4,14 @@ const router = e.Router();
 
 import { AuthController } from './auth.controller.js';
 import passport from "passport";
+import { noAuthMiddleware } from "../../middlewares/noAuth.middleware.js";
 
-router.post('/login', AuthController.login);
-router.post('/register', AuthController.register);
-router.post('/forgot-password', AuthController.forgotPassword);
-router.post('/reset-password', AuthController.resetPassword);
+router.post('/login', noAuthMiddleware, AuthController.login);
+router.post('/register', noAuthMiddleware, AuthController.register);
+router.post('/forgot-password', noAuthMiddleware, AuthController.forgotPassword);
+router.post('/reset-password', noAuthMiddleware, AuthController.resetPassword);
 
 // Google OAuth routes
-
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/google/callback", passport.authenticate("google", { session: false }), AuthController.googleCallback);
 
