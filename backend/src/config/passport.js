@@ -12,7 +12,13 @@ passport.use(
         try {
             const user = await User.findOne({ email });
             if (!user) return done(null, false, { message: "Usuario no encontrado" });
-
+     
+            if (user.googleId && !user.password) {
+                return done(null, false, {
+                message: "Esta cuenta usa inicio de sesión con Google. Inicia sesión con ese método.",
+                });
+            }
+            
             const isMatch = await user.matchPassword(password);
             if (!isMatch) return done(null, false, { message: "Contraseña incorrecta" });
 

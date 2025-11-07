@@ -7,8 +7,8 @@ import passport from "passport";
 
 router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
-//router.post('/forgot-password', AuthController.forgotPassword);
-//router.post('/verify-code', AuthController.verifyCode);
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password', AuthController.resetPassword);
 
 // Google OAuth routes
 
