@@ -12,8 +12,11 @@ export const parseQueryFilters = (query) => {
 
             switch (operator) {
                 case "regex":
-                    // Escapar caracteres especiales
-                    filters[field]["$regex"] = new RegExp(value, "i");
+                    try {
+                        filters[field]["$regex"] = new RegExp(value, "i");
+                    } catch (err) {
+                        console.warn(`Expresión regular inválida para ${field}:`, value);
+                    }
                     break;
                 case "in":
                     filters[field]["$in"] = value.split(",");
@@ -21,16 +24,33 @@ export const parseQueryFilters = (query) => {
                 case "gt":
                 case "gte":
                 case "lt":
-                case "lte":
-                    filters[field][`$${operator}`] = Number(value);
+                case "lte":{
+                    if (!isNaN(Date.parse(value)) && value.includes("-")) {
+                        filters[field][`$${operator}`] = new Date(value);
+                    }
+                    else if (!isNaN(value)) {
+                        filters[field][`$${operator}`] = Number(value);
+                    } else {
+                        console.warn(`Valor no numérico ni fecha para ${field}[${operator}]:`, value);
+                    }
                     break;
+                }
                 default:
                     filters[field][`$${operator}`] = value;
             }
         } else {
-            filters[key] = query[key];
+            const value = query[key];
+
+            if (!isNaN(Date.parse(value)) && value.includes("-")) {
+                filters[key] = new Date(value);
+            } else if (!isNaN(value)) {
+                filters[key] = Number(value);
+            } else {
+                filters[key] = value;
+            }
         }
     }
 
+    console.log("Filtros parseados:", filters);
     return filters;
 };

@@ -3,7 +3,7 @@ import { ApiResponse } from "./ApiResponse.js";
 
 export const controllerError = (res, error) => {
     if (process.env.DEBUG == "true") {
-        console.error("Error en updateCurrentPassword:", error);
+        console.error("Error en controller:", error);
     }
     if (error instanceof ApiError) {
         return ApiResponse.error(res, {
@@ -12,7 +12,7 @@ export const controllerError = (res, error) => {
         });
     }
     return ApiResponse.error(res, {
-        message: "Error al actualizar la contraseña",
+        message: "Error interno",
         status: 500,
     });
 };
