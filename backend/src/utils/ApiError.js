@@ -20,4 +20,8 @@ export class ApiError extends Error {
     static internal(message = "Error interno del servidor") {
         return new ApiError(message, 500, "INTERNAL_ERROR");
     }
+
+    static forbidden(message = "Prohibido") {
+        return new ApiError(message, 403, "FORBIDDEN");
+    }
 }

@@ -2,15 +2,16 @@ import e from "express";
 const router = e.Router();
 
 import { UserController } from './user.controller.js';
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
-router.get('/', UserController.getAllUsers);
-router.get('/:id', UserController.getUserById);
-router.put('/:id', UserController.updateUser);
-router.delete('/:id', UserController.deleteUser);
+router.get('/', authMiddleware(["admin"]), UserController.getAllUsers);
+router.get('/:id', authMiddleware(["admin"]), UserController.getUserById);
+router.put('/:id', authMiddleware(["admin"]), UserController.updateUser);
+router.delete('/:id', authMiddleware(["admin"]), UserController.deleteUser);
 
-router.get('/:id/events', UserController.getUserEvents);
-router.get('/me', UserController.getCurrentUser);
-router.patch('/me', UserController.updateCurrentPassword);
-router.put('/me', UserController.updateCurrentUser);
+router.get('/:id/events', authMiddleware(["admin"]), UserController.getUserEvents);
+router.get('/me', authMiddleware(), UserController.getCurrentUser);
+router.patch('/me', authMiddleware(), UserController.updateCurrentPassword);
+router.put('/me', authMiddleware(), UserController.updateCurrentUser);
 
 export default router;

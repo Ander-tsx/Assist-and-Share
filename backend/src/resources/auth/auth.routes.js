@@ -6,10 +6,10 @@ import { AuthController } from './auth.controller.js';
 import passport from "passport";
 import { noAuthMiddleware } from "../../middlewares/noAuth.middleware.js";
 
-router.post('/login', noAuthMiddleware, AuthController.login);
-router.post('/register', noAuthMiddleware, AuthController.register);
-router.post('/forgot-password', noAuthMiddleware, AuthController.forgotPassword);
-router.post('/reset-password', noAuthMiddleware, AuthController.resetPassword);
+router.post('/login', noAuthMiddleware(), AuthController.login);
+router.post('/register', noAuthMiddleware({ setSession: true }), AuthController.register);
+router.post('/forgot-password', noAuthMiddleware(), AuthController.forgotPassword);
+router.post('/reset-password', noAuthMiddleware(), AuthController.resetPassword);
 
 // Google OAuth routes
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));

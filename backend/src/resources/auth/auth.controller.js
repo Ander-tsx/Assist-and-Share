@@ -32,6 +32,14 @@ export const AuthController = {
     register: async (req, res) => {
         const { email, password, first_name, last_name, role, speciality } = req.body;
 
+        const user_role = req.session?.user?.role;
+        if (role !== "attendee" && user_role !== "admin") {
+            return ApiResponse.error(res, {
+                message: "No tienes permiso para asignar este rol",
+                status: 403,
+            });
+        }
+
         try {
             const data = await AuthService.register({
                 email,
@@ -40,10 +48,6 @@ export const AuthController = {
                 last_name,
                 role,
                 speciality,
-            });
-
-            const token = jwt.sign({ id: data._id, role: data.role }, process.env.JWT_SECRET, {
-                expiresIn: "30d",
             });
 
             return ApiResponse.success(res, {
