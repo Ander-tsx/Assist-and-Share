@@ -46,7 +46,7 @@ passport.use(
                         email: profile.emails[0].value,
                         first_name: profile.name.givenName,
                         last_name: profile.name.familyName,
-                        role: "assistant",
+                        role: "attendee",
                     });
                 }
 
