@@ -44,7 +44,10 @@ export const AuthController = {
 
             return ApiResponse.success(res, {
                 message: "Usuario registrado correctamente",
-                value: { user: data, token },
+                value: {
+                    user: data.user,
+                    token: data.token,
+                },
                 status: 201,
             });
         } catch (error) {
