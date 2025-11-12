@@ -9,6 +9,7 @@ export const controllerError = (res, error) => {
         return ApiResponse.error(res, {
             message: error.message,
             status: error.status,
+            error: error,
         });
     }
     return ApiResponse.error(res, {

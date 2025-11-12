@@ -23,4 +23,10 @@ const surveySchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+surveySchema.virtual("questions", {
+  ref: "Question",
+  localField: "_id",
+  foreignField: "survey",
+});
+
 export const Survey = mongoose.model("Survey", surveySchema);

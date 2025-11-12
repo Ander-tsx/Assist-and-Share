@@ -1,8 +1,8 @@
 import express from "express";
 const router = express.Router({ mergeParams: true });
 
-import { ResponseController } from "./response.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { ResponseController } from "./response.controller.js";
 
 // Enviar respuestas (solo asistentes inscritos)
 router.post("/", authMiddleware(["attendee"]), ResponseController.createResponse);

@@ -1,6 +1,7 @@
-import { ApiResponse } from "../../utils/ApiResponse";
-import { controllerError } from "../../utils/controllerError";
-import { getQueryOptions } from "../../utils/getQueryOptions";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import { controllerError } from "../../utils/controllerError.js";
+import { getQueryOptions } from "../../utils/getQueryOptions.js";
+import { SurveyService } from "./survey.service.js";
 
 export const SurveyController = {
     createSurvey: async (req, res) => {
