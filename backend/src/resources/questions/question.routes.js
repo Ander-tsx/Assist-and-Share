@@ -1,11 +1,11 @@
 import express from "express";
 const router = express.Router({ mergeParams: true });
 
-import { QuestionController } from "./question.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { QuestionController } from "./question.controller.js";
 
-// Crear pregunta en una encuesta
-router.post("/", authMiddleware(["organizer"]), QuestionController.createQuestion);
+// Crear preguntas en una encuesta
+router.post("/", authMiddleware(["organizer"]), QuestionController.createQuestions);
 
 // Obtener todas las preguntas de una encuesta
 router.get("/", authMiddleware(), QuestionController.getQuestionsBySurvey);

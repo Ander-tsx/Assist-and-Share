@@ -1,5 +1,6 @@
 import { ApiResponse } from "../../utils/ApiResponse";
 import { controllerError } from "../../utils/controllerError";
+import { getQueryOptions } from "../../utils/getQueryOptions";
 
 export const SurveyController = {
     createSurvey: async (req, res) => {
@@ -17,10 +18,11 @@ export const SurveyController = {
 
     getAllSurveys: async (req, res) => {
         try {
-            const surveys = await SurveyService.getAllSurveys();
+            const options = getQueryOptions(req);
+            const result = await SurveyService.getAllSurveys(options);
             return ApiResponse.success(res, {
                 message: "Encuestas obtenidas correctamente",
-                value: surveys,
+                value: result,
             });
         } catch (error) {
             return controllerError(res, error);
