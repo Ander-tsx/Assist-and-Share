@@ -12,6 +12,7 @@ export const authMiddleware = (roles) => {
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
             req.session = {};
             req.session.user = { id: decoded.id, role: decoded.role };
             

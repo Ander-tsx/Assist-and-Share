@@ -13,7 +13,7 @@ router.get("/", authMiddleware(["presenter", "admin"]), SurveyController.getAllS
 // Obtener una encuesta por ID
 router.get("/:surveyId", authMiddleware(), SurveyController.getSurveyById);
 
-// Actualizar encuesta (por ejemplo título, descripción o isActive)
+// Actualizar encuesta (por ejemplo título, descripción o las preguntas de la encuesta)
 router.patch("/:surveyId", authMiddleware(["admin"]), SurveyController.updateSurvey);
 
 // Eliminar encuesta

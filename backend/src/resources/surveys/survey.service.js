@@ -3,7 +3,7 @@ import { Survey } from "../../models/survey.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { buildQuery } from "../../utils/queryBuilder.js";
 import { Question } from "../../models/question.model.js";
-import { populate } from "dotenv";
+import { Response } from "../../models/response.model.js";
 
 export const SurveyService = {
     getAllSurveys: async (options) => {
@@ -24,7 +24,7 @@ export const SurveyService = {
             const result = await buildQuery(Survey, queryOptions);
             return result;
         } catch (error) {
-            throw ApiError.internal("Error al obtener las encuestas");
+            throw error;
         }
     },
 
@@ -45,7 +45,7 @@ export const SurveyService = {
 
             return survey;
         } catch (error) {
-            throw ApiError.internal("Error al obtener la encuesta");
+            throw error;
         }
     },
 
@@ -80,10 +80,10 @@ export const SurveyService = {
             const populatedSurvey = await Survey.findById(survey._id).populate("questions").lean();
             return populatedSurvey;
         } catch (error) {
-            console.log(error);
             await session.abortTransaction();
             session.endSession();
-            throw ApiError.internal("Error al crear la encuesta");
+
+            throw error;
         }
     },
 
@@ -134,8 +134,8 @@ export const SurveyService = {
         } catch (error) {
             await session.abortTransaction();
             session.endSession();
-            console.error(error);
-            throw ApiError.internal("Error al actualizar la encuesta");
+
+            throw error;
         }
     },
 
@@ -145,14 +145,12 @@ export const SurveyService = {
             if (!survey) throw ApiError.notFound("Encuesta no encontrada");
 
             await Question.deleteMany({ survey: surveyId });
-
             await Response.deleteMany({ survey: surveyId });
-
             await Survey.findByIdAndDelete(surveyId);
 
             return { message: "Encuesta y datos relacionados eliminados correctamente" };
         } catch (error) {
-            throw ApiError.internal("Error al eliminar la encuesta");
+            throw error;
         }
     },
 };

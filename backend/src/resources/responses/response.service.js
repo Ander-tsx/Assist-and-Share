@@ -22,6 +22,7 @@ export const ResponseService = {
 
         return newResponse;
     },
+    
     getAllResponses: async (surveyId) => {
         const responses = await Response.find({ survey: surveyId })
             .populate("user", "first_name last_name email")

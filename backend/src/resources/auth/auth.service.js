@@ -23,7 +23,7 @@ export const AuthService = {
             });
             await newUser.save();
 
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+            const token = jwt.sign({ id: newUser._id, role: newUser.role }, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
 
@@ -35,10 +35,7 @@ export const AuthService = {
                 token,
             };
         } catch (error) {
-            if (error instanceof ApiError) throw error;
-
-            console.error("Error en AuthService.register:", error);
-            throw ApiError.internal("Error al registrar el usuario");
+            throw error;
         }
     },
 
@@ -63,10 +60,7 @@ export const AuthService = {
             
             return { message: "Correo de restablecimiento de contraseña enviado" };
         } catch (error) {
-            if (error instanceof ApiError) throw error;
-
-            console.error("Error en AuthService.forgotPassword:", error);
-            throw ApiError.internal("Error al procesar la solicitud de restablecimiento de contraseña");
+            throw error;
         }
     },
 
@@ -83,10 +77,7 @@ export const AuthService = {
 
             return { message: "Contraseña restablecida con éxito" };
         } catch (error) {
-            if (error instanceof ApiError) throw error;
-
-            console.error("Error en AuthService.resetPassword:", error);
-            throw ApiError.internal("Error al restablecer la contraseña");
+            throw error;
         }
     },
 };

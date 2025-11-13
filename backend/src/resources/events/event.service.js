@@ -15,7 +15,7 @@ export const EventService = {
             }
             return event;
         } catch (error) {
-            throw ApiError.internal("Error al obtener el evento");
+            throw error;
         }
     },
 
@@ -25,14 +25,7 @@ export const EventService = {
             await newEvent.save();
             return newEvent;
         } catch (error) {
-            console.log(error);
-            if (error.name === "ValidationError") {
-                const messages = Object.values(error.errors).map((err) => err.message);
-                throw ApiError.badRequest(messages.join(", "));
-            }
-
-            console.error("Error al crear evento:", error);
-            throw ApiError.internal("Error al crear el evento");
+            throw error;
         }
     },
 
@@ -44,8 +37,7 @@ export const EventService = {
             }
             return event;
         } catch (error) {
-            console.log(error);
-            throw ApiError.internal("Error al actualizar el evento");
+            throw error;
         }
     },
 
@@ -57,7 +49,7 @@ export const EventService = {
             }
             return deleted;
         } catch (error) {
-            throw ApiError.internal("Error al eliminar el evento");
+            throw error;
         }
     },
 };
