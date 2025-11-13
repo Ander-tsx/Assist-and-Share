@@ -15,7 +15,7 @@ export const ResponseController = {
             }
 
             const surveyId = req.params.surveyId;
-            const userId = req.user.id;
+            const userId = req.session.user.id;
 
             const newResponse = await ResponseService.createResponse(surveyId, userId, answers);
             return ApiResponse.success(res, {
