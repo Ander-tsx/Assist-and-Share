@@ -22,6 +22,7 @@ const apiRoutes = [
 const roleBasedRoutes: Record<string, string[]> = {
   '/admin': ['admin'],
   '/presenter/dashboard': ['presenter', 'admin'],
+  '/events': ['attendee', 'admin', 'presenter'],
 };
 
 async function verifyToken(token: string) {
