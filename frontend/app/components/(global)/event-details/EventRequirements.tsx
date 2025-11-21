@@ -1,6 +1,6 @@
 "use client"
 
-import HoverCard from "../../../../components/(ui)/HoverCard"
+import HoverCard from "@/app/components/(ui)/HoverCard"
 
 interface EventRequirementsProps {
   requirements: string

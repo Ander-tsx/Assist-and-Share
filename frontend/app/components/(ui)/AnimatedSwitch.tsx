@@ -33,7 +33,7 @@ export default function AnimatedSwitch({ value, onChange, options }: AnimatedSwi
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`relative z-10 px-8 py-2.5 rounded-full font-medium transition-colors duration-300 ${
-            value === option.value ? "text-white" : "text-gray-400 hover:text-gray-300"
+            value === option.value ? "text-white" : "cursor-pointer text-gray-400 hover:text-gray-300"
           }`}
         >
           {option.label}

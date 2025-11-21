@@ -7,12 +7,12 @@ import api from "@/lib/api"
 
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
-import EventHeader from "@/app/components/(global)/events/detail/EventHeader"
-import EventInfo from "@/app/components/(global)/events/detail/EventInfo"
-import EventActions from "@/app/components/(global)/events/detail/EventActions"
-import EventDescription from "@/app/components/(global)/events/detail/EventDescription"
-import EventRequirements from "@/app/components/(global)/events/detail/EventRequirements"
-import EventMaterials from "@/app/components/(global)/events/detail/EventMaterials"
+import EventHeader from "@/app/components/(global)/event-details/EventHeader"
+import EventInfo from "@/app/components/(global)/event-details/EventInfo"
+import EventActions from "@/app/components/(global)/event-details/EventActions"
+import EventDescription from "@/app/components/(global)/event-details/EventDescription"
+import EventRequirements from "@/app/components/(global)/event-details/EventRequirements"
+import EventMaterials from "@/app/components/(global)/event-details/EventMaterials"
 
 // --- Definición de Interfaces ---
 
@@ -60,6 +60,12 @@ export default function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null)
   const [presenter, setPresenter] = useState<Presenter | null>(null)
   const [materials, setMaterials] = useState<Material[]>([])
+  const [assistance, setAssistance] = useState<any>(null)
+  const ACTIVE_STATUSES = ["pending", "approved"]
+  const isPending = assistance?.status === "pending"
+  const isApproved = assistance?.status === "approved"
+  const isEnrolled = !!assistance && ACTIVE_STATUSES.includes(assistance.status)
+  const isPastEvent = event ? new Date(event.date) < new Date() : false
 
   // Estado de la UI (carga y errores)
   const [isLoadingEvent, setIsLoadingEvent] = useState(true) // Corregido de loadingEvent a isLoadingEvent
@@ -116,10 +122,27 @@ export default function EventDetail() {
     }
   }
 
+const fetchUserAssistance = async () => {
+  if (!user) return
+
+  const { data } = await api.get(`/assistance/user/${user.id}`)
+  const found = data.value.find((a: any) => a.event?._id === id)
+  console.log("Asistencia encontrada:", found)
+
+  if (!found || found.status === "cancelled") {
+    setAssistance(null)
+  } else {
+    setAssistance(found)
+  }
+}
+
+
+
   useEffect(() => {
-    if (!id) return
+    if (!id || !user) return
     fetchEvent()
-  }, [id])
+    fetchUserAssistance()
+  }, [id, user])
 
   // --- Manejadores de Eventos (Handlers) ---
 
@@ -141,13 +164,29 @@ export default function EventDetail() {
 
   const handleEnroll = async () => {
     try {
-      await api.post(`/events/${id}/enroll`)
-      await fetchEvent() // Re-fetch para actualizar estado de asistentes
+      await api.post(`/assistance/${id}`)
+      await fetchUserAssistance()
     } catch (err: any) {
-      const errMsg = err.response?.data?.message || "Error al inscribirse"
-      setError(errMsg)
+      setError(err.response?.data?.message || "Error al inscribirse")
     }
   }
+
+const handleCancel = async () => {
+  if (!assistance) return
+  try {
+    // optimista: deshabilitar UI o marcar null inmediatamente
+    setAssistance(null)
+
+    await api.delete(`/assistance/${assistance._id}`)
+    // volver a consultar para garantizar consistencia (y actualizar event si aplica)
+    await fetchUserAssistance()
+    await fetchEvent()
+  } catch (err: any) {
+    // si falla, volver a intentar obtener el estado real
+    await fetchUserAssistance()
+    setError(err.response?.data?.message || "Error al cancelar inscripción")
+  }
+}
 
   const handleRemoveMaterial = (materialId: string) => {
     setMaterials(materials.filter((m) => m.id !== materialId))
@@ -165,11 +204,6 @@ export default function EventDetail() {
   }
 
   // --- Lógica de Renderizado ---
-
-  const isAdmin = user?.role === "admin"
-  const isPresenter = user?.role === "presenter" && user?.id === event?.presenter
-  const isAttendee = user?.role === "attendee"
-  const canEdit = isPresenter
 
   const isLoading = loadingAuth || isLoadingEvent // Corregido
 
@@ -217,32 +251,39 @@ export default function EventDetail() {
 
             <EventActions
               user={user}
-              isAdmin={isAdmin}
-              isPresenter={isPresenter}
-              isAttendee={isAttendee}
-              changed={hasChanges} // Corregido
+              isAdmin={user?.role === "admin"}
+              isPresenter={user?.role === "presenter" && user?.id === event?.presenter}
+              isAttendee={user?.role === "attendee"}
+              changed={hasChanges}
               eventId={event._id}
               onSaveChanges={handleSaveChanges}
               onEnroll={handleEnroll}
+              onCancel={handleCancel}
+              isEnrolled={!!assistance && ACTIVE_STATUSES.includes(assistance.status)}
+              isPending={isPending}
+              isApproved={isApproved}
+              onViewQR={() => {}}
+              isPastEvent={isPastEvent}
             />
+
           </div>
         </div>
 
         <EventDescription
           description={description}
-          canEdit={canEdit}
+          canEdit={user?.role === "presenter" && user?.id === event?.presenter}
           onChange={handleDescriptionChange}
         />
 
         <EventRequirements
           requirements={requirements}
-          canEdit={canEdit}
+          canEdit={user?.role === "presenter" && user?.id === event?.presenter}
           onChange={handleRequirementsChange}
         />
 
         <EventMaterials
           materials={materials}
-          canEdit={canEdit}
+          canEdit={user?.role === "presenter" && user?.id === event?.presenter}
           onRemove={handleRemoveMaterial}
         />
       </div>

@@ -1,8 +1,8 @@
 "use client"
 
 import { Upload } from 'lucide-react'
-import HoverCard from "../../../../components/(ui)/HoverCard"
-import MaterialItem from "./MaterialItem"
+import HoverCard from "@/app/components/(ui)/HoverCard"
+import MaterialItem from "@/app/components/(global)/event-details/MaterialItem"
 
 interface Material {
   id: string

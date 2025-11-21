@@ -46,7 +46,8 @@ export const EventService = {
             if (assistances.length > 0) {
                 const emails = [...new Set(assistances.map(a => a.user.email))];
 
-                await sendEmail({
+                try {
+                    await sendEmail({
                     bcc: emails,
                     subject: `Actualización del evento: ${event.title}`,
                     text: `El evento "${event.title}" ha sido actualizado. Por favor, revisa los detalles actualizados.`,
@@ -58,7 +59,10 @@ export const EventService = {
                         <p><strong>Ubicación/Enlace:</strong> ${event.location || event.link}</p>
                         <p>Por favor revisa los detalles actualizados en la plataforma.</p>
                     `,
-                });
+                    });
+                } catch (emailError) {
+                    console.error("No se pudo enviar correo de actualización:", emailError);
+                }
             }
 
             return event;

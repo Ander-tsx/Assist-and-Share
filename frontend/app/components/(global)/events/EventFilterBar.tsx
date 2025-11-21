@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import CustomSelect from "../../(ui)/CustomSelect"
+import CustomSelect from "@/app/components/(ui)/CustomSelect"
 
 // --- Definición de Interfaces ---
 

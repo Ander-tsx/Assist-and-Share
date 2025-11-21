@@ -118,7 +118,7 @@ export default function EventCard({ event, presenterName }: EventCardProps) {
           {/* Ubicación o enlace (si es online) */}
           {(event.location || event.modality === "online") && (
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-md bg-gray-800/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                 {event.modality === "online" ? (
                   <LinkIcon size={24} className="text-gray-400" />
                 ) : (
@@ -133,10 +133,9 @@ export default function EventCard({ event, presenterName }: EventCardProps) {
                   {event.modality === "online" ? (
                     event.link ? (
                       <a
-                        href={event.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="underline hover:text-blue-400 transition-colors"
+                        className="underline"
                       >
                         {event.link}
                       </a>
@@ -153,7 +152,7 @@ export default function EventCard({ event, presenterName }: EventCardProps) {
 
           {/* Ponente */}
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-10 h-10 rounded-md bg-gray-800/20 flex items-center justify-center flex-shrink-0 mt-0.5">
               <User size={24} className="text-gray-400" />
             </div>
             <div>
