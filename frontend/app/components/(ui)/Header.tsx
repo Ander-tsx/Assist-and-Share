@@ -31,12 +31,10 @@ const navLinksByRole: { [key: string]: NavLink[] } = {
     presenter: [
         { href: '/events', label: 'Ponencias' },
         { href: '/feedback', label: 'Retroalimentación' },
-        { href: '/attendees', label: 'Asistentes' },
     ],
     admin: [
         { href: '/events', label: 'Eventos' },
         { href: '/users', label: 'Usuarios' },
-        { href: '/attendees', label: 'Asistentes' },
     ],
 }
 
@@ -64,8 +62,9 @@ export default function Header() {
     // Referencia para detectar click fuera del menú (Desktop)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
-    // Detectar si estamos en detalles
+    // --- DETECCIÓN DE RUTAS ---
     const isEventDetails = pathname.startsWith('/event-details')
+    const isAttendees = pathname.startsWith('/attendees')
 
     // --- Carga de Usuario ---
     const fetchUser = async () => {
@@ -87,22 +86,20 @@ export default function Header() {
         fetchUser()
     }, [user])
 
-    // --- Lógica Click Outsai xd ---
+    // --- Lógica Click Outside ---
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            // Si el menú móvil está abierto, IGNORAMOS esta lógica
-            // para evitar que se cierren los inputs al hacer clic en ellos.
             if (isMobileMenuOpen) return;
 
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsUserMenuOpen(false)
-                setIsEditing(false) // Resetear edición al cerrar
+                setIsEditing(false)
                 setMsg(null)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [isMobileMenuOpen]) // Añadimos isMobileMenuOpen a las dependencias
+    }, [isMobileMenuOpen])
 
     // --- Manejador Guardar ---
     const handleSave = async () => {
@@ -146,7 +143,9 @@ export default function Header() {
                     {/* LINKS DESKTOP */}
                     <div className="hidden md:flex md:items-center md:gap-6">
                         {currentLinks.map((link) => {
-                            const isActive = pathname === link.href || (link.href === '/events' && isEventDetails)
+                            const isActive = pathname === link.href ||
+                                (link.href === '/events' && (isEventDetails || isAttendees))
+
                             return (
                                 <Link
                                     key={link.href}
@@ -179,7 +178,7 @@ export default function Header() {
                                     </div>
                                 </button>
 
-                                {/* --- DROPDOWN (CARD FLOTANTE DESKTOP) --- */}
+                                {/* DROPDOWN (CARD FLOTANTE DESKTOP) */}
                                 {isUserMenuOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-80 bg-[#111827] border border-gray-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
 
@@ -262,7 +261,6 @@ export default function Header() {
                                             )}
                                         </div>
 
-                                        {/* Footer: Logout Desktop */}
                                         <div className="p-2 border-t border-gray-800 bg-gray-900/30 flex items-center justify-center">
                                             <LogoutButton />
                                         </div>
@@ -289,17 +287,36 @@ export default function Header() {
                 </div>
             </nav>
 
-            {/* BREADCRUMB (Solo Event Details) */}
-            {isEventDetails && (
+            {/* --- BREADCRUMB (Event Details / Attendees) --- */}
+            {(isEventDetails || isAttendees) && (
                 <div className="w-full border-b border-gray-800 bg-gray-900/2">
                     <div className="max-w-7xl mx-auto px-4 py-2 text-xs font-medium flex items-center gap-2 text-gray-400">
+                        {/* 1. Raíz */}
                         <Link href="/events" className="hover:text-white transition">
                             {user?.role === 'presenter' ? 'Ponencias' : 'Eventos'}
                         </Link>
+
                         <ChevronRight size={14} className="text-gray-600" />
-                        <span className="text-gray-200">
-                            {user?.role === 'presenter' || user?.role === 'admin' ? 'Gestión' : 'Detalles'}
-                        </span>
+
+                        {/* 2. Lógica Dinámica */}
+                        {isAttendees ? (
+                            <>
+                                {/* Si estamos en asistentes, mostramos 'Gestión' como link intermedio */}
+                                <Link
+                                    href={`/event-details/${pathname.split('/').pop()}`}
+                                    className="hover:text-white transition"
+                                >
+                                    Gestión
+                                </Link>
+                                <ChevronRight size={14} className="text-gray-600" />
+                                <span className="text-gray-200">Asistentes</span>
+                            </>
+                        ) : (
+                            // Si estamos en detalles del evento
+                            <span className="text-gray-200">
+                                {user?.role === 'presenter' || user?.role === 'admin' ? 'Gestión' : 'Detalles'}
+                            </span>
+                        )}
                     </div>
                 </div>
             )}
@@ -383,17 +400,22 @@ export default function Header() {
                             </div>
                         )}
 
-                        {currentLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className={`block px-4 py-3 rounded-lg text-sm font-medium ${pathname === link.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-900'
-                                    }`}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                {link.label}
-                            </Link>
-                        ))}
+                        {currentLinks.map((link) => {
+                            const isActive = pathname === link.href ||
+                                (link.href === '/events' && (isEventDetails || isAttendees))
+
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`block px-4 py-3 rounded-lg text-sm font-medium ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                                        }`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {link.label}
+                                </Link>
+                            )
+                        })}
 
                         {!user && (
                             <Link

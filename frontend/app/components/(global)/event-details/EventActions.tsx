@@ -51,9 +51,9 @@ export default function EventActions({
             Editar
           </button>
           <button
-            onClick={() => router.push(`/events/attendees/${eventId}`)}
-                className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
-            >
+            onClick={() => router.push(`/attendees/${eventId}`)}
+            className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
+          >
             Gestionar asistentes
           </button>
         </div>
@@ -64,17 +64,16 @@ export default function EventActions({
           <button
             disabled={!changed}
             onClick={onSaveChanges}
-            className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-300 ${
-              changed
-                ? "bg-white text-black hover:bg-gray-200 hover:shadow-lg hover:shadow-white/20 hover:rounded-3xl duration-300 cursor-pointer"
-                : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
-            }`}
+            className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-300 ${changed
+              ? "bg-white text-black hover:bg-gray-200 hover:shadow-lg hover:shadow-white/20 hover:rounded-3xl duration-300 cursor-pointer"
+              : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+              }`}
           >
             Guardar cambios
           </button>
 
           <button
-            onClick={() => router.push(`/events/attendees/${eventId}`)}
+            onClick={() => router.push(`/attendees/${eventId}`)}
             className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
           >
             Gestionar asistentes
