@@ -66,6 +66,7 @@ export default function EventDetail() {
   const isApproved = assistance?.status === "approved"
   const isEnrolled = !!assistance && ACTIVE_STATUSES.includes(assistance.status)
   const isPastEvent = event ? new Date(event.date) < new Date() : false
+  const isRejected = assistance?.status === "rejected"
 
   // Estado de la UI (carga y errores)
   const [isLoadingEvent, setIsLoadingEvent] = useState(true) // Corregido de loadingEvent a isLoadingEvent
@@ -262,9 +263,9 @@ export default function EventDetail() {
               isEnrolled={!!assistance && ACTIVE_STATUSES.includes(assistance.status)}
               isPending={isPending}
               isApproved={isApproved}
+              isRejected={isRejected}
               onViewQR={() => { }}
-              isPastEvent={isPastEvent}
-            />
+              isPastEvent={isPastEvent} />
 
           </div>
         </div>
