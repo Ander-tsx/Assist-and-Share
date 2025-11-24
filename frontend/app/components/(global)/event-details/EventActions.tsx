@@ -49,14 +49,14 @@ export default function EventActions({
       {isAdmin && (
         <div className="flex gap-4">
           <button
-            onClick={() => router.push(`/events/edit/${eventId}`)}
-            className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
+            onClick={() => router.push(`/event-edit/${eventId}`)}
+            className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
           >
             Editar
           </button>
           <button
             onClick={() => router.push(`/attendees/${eventId}`)}
-            className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
+            className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
           >
             Gestionar asistentes
           </button>
@@ -79,7 +79,7 @@ export default function EventActions({
 
           <button
             onClick={() => router.push(`/attendees/${eventId}`)}
-            className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
+            className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
           >
             Gestionar asistentes
           </button>
@@ -108,7 +108,7 @@ export default function EventActions({
                 className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2
                   ${isRejected
                     ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700 opacity-70" // Estilo Bloqueado
-                    : "bg-white text-black hover:bg-gray-200 hover:shadow-lg hover:shadow-white/20 hover:rounded-3xl cursor-pointer" // Estilo Normal
+                    : "bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer" // Estilo Normal
                   }`}
               >
                 {isRejected && <Ban size={18} />}
@@ -126,7 +126,7 @@ export default function EventActions({
               </p>
               <button
                 onClick={onCancel}
-                className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
+                className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl"
               >
                 Cancelar inscripción
               </button>
@@ -144,7 +144,7 @@ export default function EventActions({
               </button>
               <button
                 onClick={onViewQR}
-                className="flex-1 py-3 bg-white text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl shadow-lg hover:shadow-green-500/20"
+                className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl shadow-lg hover:shadow-green-500/20"
               >
                 Ver QR
               </button>

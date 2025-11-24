@@ -53,18 +53,20 @@ export default function Header() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [userData, setUserData] = useState<UserData | null>(null)
 
-    // Estados para edición
+    // Estados para edición de usuario
     const [isEditing, setIsEditing] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [msg, setMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [formData, setFormData] = useState({ first_name: '', last_name: '', speciality: '' })
 
-    // Referencia para detectar click fuera del menú (Desktop)
+    // Referencia para detectar click fuera del menú
     const dropdownRef = useRef<HTMLDivElement>(null)
 
     // --- DETECCIÓN DE RUTAS ---
     const isEventDetails = pathname.startsWith('/event-details')
     const isAttendees = pathname.startsWith('/attendees')
+    // Detectamos la ruta de edición (asumiendo /events/edit/[id])
+    const isEventEdit = pathname.startsWith('/events/edit') || pathname.startsWith('/event-edit')
 
     // --- Carga de Usuario ---
     const fetchUser = async () => {
@@ -101,7 +103,7 @@ export default function Header() {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [isMobileMenuOpen])
 
-    // --- Manejador Guardar ---
+    // --- Manejador Guardar Usuario ---
     const handleSave = async () => {
         setIsLoading(true)
         setMsg(null)
@@ -131,7 +133,7 @@ export default function Header() {
 
                     {/* LOGO */}
                     <Link
-                        href={user?.role === 'admin' ? "/users" : "/events"}
+                        href="/events"
                         className="flex items-center gap-2 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -144,7 +146,7 @@ export default function Header() {
                     <div className="hidden md:flex md:items-center md:gap-6">
                         {currentLinks.map((link) => {
                             const isActive = pathname === link.href ||
-                                (link.href === '/events' && (isEventDetails || isAttendees))
+                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit))
 
                             return (
                                 <Link
@@ -178,11 +180,9 @@ export default function Header() {
                                     </div>
                                 </button>
 
-                                {/* DROPDOWN (CARD FLOTANTE DESKTOP) */}
+                                {/* DROPDOWN DESKTOP */}
                                 {isUserMenuOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-80 bg-[#111827] border border-gray-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-
-                                        {/* Header de la Card */}
                                         <div className="p-4 border-b border-gray-800 bg-gray-900/50 flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold">
                                                 {initials}
@@ -198,7 +198,6 @@ export default function Header() {
                                             )}
                                         </div>
 
-                                        {/* Cuerpo de la Card (Formulario Desktop) */}
                                         <div className="p-4 space-y-3">
                                             {msg && (
                                                 <div className={`text-xs p-2 rounded flex items-center gap-2 ${msg.type === 'success' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
@@ -207,7 +206,6 @@ export default function Header() {
                                             )}
 
                                             {isEditing ? (
-                                                // MODO EDICIÓN DESKTOP
                                                 <div className="space-y-3 animate-in fade-in">
                                                     <div className="grid grid-cols-2 gap-2">
                                                         <div>
@@ -245,7 +243,6 @@ export default function Header() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                // MODO VISUALIZACIÓN DESKTOP
                                                 <div className="space-y-3">
                                                     <div>
                                                         <p className="text-[10px] uppercase text-gray-500 font-bold">Especialidad</p>
@@ -287,21 +284,22 @@ export default function Header() {
                 </div>
             </nav>
 
-            {/* --- BREADCRUMB (Event Details / Attendees) --- */}
-            {(isEventDetails || isAttendees) && (
+            {/* --- BREADCRUMB (Navegación secundaria) --- */}
+            {(isEventDetails || isAttendees || isEventEdit) && (
                 <div className="w-full border-b border-gray-800 bg-gray-900/2">
                     <div className="max-w-7xl mx-auto px-4 py-2 text-xs font-medium flex items-center gap-2 text-gray-400">
-                        {/* 1. Raíz */}
+
+                        {/* 1. Nivel Raíz */}
                         <Link href="/events" className="hover:text-white transition">
                             {user?.role === 'presenter' ? 'Ponencias' : 'Eventos'}
                         </Link>
 
                         <ChevronRight size={14} className="text-gray-600" />
 
-                        {/* 2. Lógica Dinámica */}
-                        {isAttendees ? (
+                        {/* 2. Nivel Intermedio y Final */}
+                        {isAttendees || isEventEdit ? (
                             <>
-                                {/* Si estamos en asistentes, mostramos 'Gestión' como link intermedio */}
+                                {/* Link intermedio hacia Detalles */}
                                 <Link
                                     href={`/event-details/${pathname.split('/').pop()}`}
                                     className="hover:text-white transition"
@@ -309,10 +307,14 @@ export default function Header() {
                                     Gestión
                                 </Link>
                                 <ChevronRight size={14} className="text-gray-600" />
-                                <span className="text-gray-200">Asistentes</span>
+
+                                {/* Nombre de la página actual */}
+                                <span className="text-gray-200">
+                                    {isAttendees ? 'Asistentes' : 'Edición'}
+                                </span>
                             </>
                         ) : (
-                            // Si estamos en detalles del evento
+                            // Si estamos en detalles
                             <span className="text-gray-200">
                                 {user?.role === 'presenter' || user?.role === 'admin' ? 'Gestión' : 'Detalles'}
                             </span>
@@ -327,7 +329,6 @@ export default function Header() {
                     <div className="p-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
                         {user && userData && (
                             <div className="mb-4 pb-4 border-b border-gray-800">
-                                {/* Header del Usuario en Mobile */}
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center font-bold text-blue-400">
@@ -348,7 +349,6 @@ export default function Header() {
                                     )}
                                 </div>
 
-                                {/* Formulario en Mobile */}
                                 {isEditing ? (
                                     <div className="space-y-3 mt-4 bg-gray-900/50 p-3 rounded-xl border border-gray-800">
                                         {msg && (
@@ -356,7 +356,6 @@ export default function Header() {
                                                 {msg.type === 'success' ? <CheckCircle size={12} /> : <XCircle size={12} />} {msg.text}
                                             </div>
                                         )}
-
                                         <div className="space-y-1">
                                             <label className="text-[10px] uppercase text-gray-500 font-bold">Nombre</label>
                                             <input
@@ -402,7 +401,7 @@ export default function Header() {
 
                         {currentLinks.map((link) => {
                             const isActive = pathname === link.href ||
-                                (link.href === '/events' && (isEventDetails || isAttendees))
+                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit))
 
                             return (
                                 <Link

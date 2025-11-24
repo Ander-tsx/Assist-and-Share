@@ -219,7 +219,7 @@ export default function EventAttendeesPage() {
                                                 {(att.status === 'pending' || att.status === 'rejected') && (
                                                     <button
                                                         onClick={() => handleUpdateStatus(att._id, 'approved')}
-                                                        className="flex-1 bg-green-500/10 text-green-400 border border-green-500/20 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                                                        className="flex-1 bg-gray-800 hover:bg-gray-700 text-white hover:cursor-pointer py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform"
                                                     >
                                                         <Check size={16} /> Aprobar
                                                     </button>
@@ -228,7 +228,7 @@ export default function EventAttendeesPage() {
                                                 {(att.status === 'pending' || att.status === 'approved') && (
                                                     <button
                                                         onClick={() => handleUpdateStatus(att._id, 'rejected')}
-                                                        className="flex-1 bg-red-500/10 text-red-400 border border-red-500/20 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                                                        className="flex-1 bg-red-500/10 text-red-400 hover:cursor-pointer hover:bg-red-500/20 border border-red-500/20 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform"
                                                     >
                                                         <X size={16} /> Rechazar
                                                     </button>
@@ -290,7 +290,7 @@ export default function EventAttendeesPage() {
                                                             {(att.status === 'pending' || att.status === 'rejected') && (
                                                                 <button
                                                                     onClick={() => handleUpdateStatus(att._id, 'approved')}
-                                                                    className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/20 transition-all tooltip-trigger"
+                                                                    className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 hover:cursor-pointer text-white transition-all tooltip-trigger"
                                                                     title="Aprobar"
                                                                 >
                                                                     <Check size={18} />
@@ -300,7 +300,7 @@ export default function EventAttendeesPage() {
                                                             {(att.status === 'pending' || att.status === 'approved') && (
                                                                 <button
                                                                     onClick={() => handleUpdateStatus(att._id, 'rejected')}
-                                                                    className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 transition-all"
+                                                                    className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:cursor-pointer transition-all"
                                                                     title="Rechazar"
                                                                 >
                                                                     <X size={18} />
