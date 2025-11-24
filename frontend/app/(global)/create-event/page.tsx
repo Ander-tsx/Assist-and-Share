@@ -1,18 +1,19 @@
 "use client"
 
 import { useState, useEffect, ChangeEvent, useMemo } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import api from "@/lib/api"
 import {
-    ArrowLeft, Save, Trash2, UploadCloud,
-    X, Plus, FileText, Calendar, MapPin, Link as LinkIcon
+    ArrowLeft, Save, UploadCloud,
+    X, Plus, FileText, Calendar, MapPin, Link as LinkIcon,
+    Trash2
 } from "lucide-react"
 import Link from "next/link"
 
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
-import CustomSelect from "@/app/components/(ui)/CustomSelect" // Asegúrate de importar tu componente
+import CustomSelect from "@/app/components/(ui)/CustomSelect"
 
 // --- Interfaces ---
 
@@ -54,9 +55,7 @@ const MODALITY_OPTIONS = [
     { value: "hybrid", label: "Híbrido" },
 ]
 
-export default function EditEventPage() {
-    const params = useParams()
-    const eventId = params.id as string
+export default function CreateEventPage() {
     const router = useRouter()
     const { user } = useAuth()
 
@@ -83,47 +82,22 @@ export default function EditEventPage() {
     const [newReq, setNewReq] = useState("")
     const [materials, setMaterials] = useState<MockMaterial[]>([])
 
-    // --- Carga Inicial ---
+    // --- Carga Inicial (Solo Presentadores) ---
     useEffect(() => {
-        const initData = async () => {
+        const fetchPresenters = async () => {
             try {
                 const presentersReq = await api.get("/users", { params: { role: "presenter" } })
                 setPresenters(presentersReq.data.value.results)
-
-                const eventReq = await api.get(`/events/${eventId}`)
-                const event = eventReq.data.value
-
-                const dateObj = new Date(event.date)
-                // Ajuste de zona horaria local para input datetime-local
-                // Esto evita el desfase de horas al editar
-                const offset = dateObj.getTimezoneOffset()
-                const localDate = new Date(dateObj.getTime() - (offset * 60 * 1000))
-                const formattedDate = localDate.toISOString().slice(0, 16)
-
-                setFormData({
-                    title: event.title,
-                    description: event.description || "",
-                    capacity: event.capacity || 0,
-                    duration: event.duration,
-                    modality: event.modality,
-                    date: formattedDate,
-                    presenter: event.presenter,
-                    location: event.location || "",
-                    link: event.link || "",
-                    requirements: event.requirements || [],
-                    type: event.type
-                })
-
             } catch (err: any) {
                 console.error(err)
-                setError("Error al cargar los datos del evento.")
+                setError("Error al cargar la lista de presentadores.")
             } finally {
                 setIsLoading(false)
             }
         }
 
-        if (eventId) initData()
-    }, [eventId])
+        if (user) fetchPresenters()
+    }, [user])
 
     // --- Mapeo de Opciones ---
     const presenterOptions = useMemo(() => {
@@ -135,12 +109,11 @@ export default function EditEventPage() {
 
     // --- Manejadores ---
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = event.target
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
     }
 
-    // Manejador específico para CustomSelect
     const handleSelectChange = (field: keyof EventFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
@@ -172,34 +145,27 @@ export default function EditEventPage() {
         setMaterials(prev => prev.filter((_, i) => i !== index))
     }
 
-    const handleSave = async (e: React.FormEvent) => {
+    // --- Crear Evento (POST) ---
+    const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSaving(true)
         setError("")
 
         try {
-            await api.put(`/events/${eventId}`, {
+            // Crear el evento
+            const response = await api.post('/events', {
                 ...formData,
                 date: new Date(formData.date).toISOString()
             })
-            router.push(`/event-details/${eventId}`)
+
+            // Obtener el ID del nuevo evento para redirigir
+            const newEventId = response.data.value._id
+
+            // Redirigir al detalle del evento creado
+            router.push(`/event-details/${newEventId}`)
         } catch (err: any) {
             console.error(err)
-            setError(err.response?.data?.message || "Error al actualizar el evento")
-            setIsSaving(false)
-        }
-    }
-
-    const handleDelete = async () => {
-        if (!confirm("¿Estás seguro de que quieres eliminar este evento?")) return
-
-        setIsSaving(true)
-        try {
-            await api.delete(`/events/${eventId}`)
-            router.push("/events")
-        } catch (err: any) {
-            console.error(err)
-            setError(err.response?.data?.message || "Error al eliminar el evento")
+            setError(err.response?.data?.message || "Error al crear el evento")
             setIsSaving(false)
         }
     }
@@ -208,25 +174,18 @@ export default function EditEventPage() {
 
     return (
         <div className="min-h-screen text-white p-4 md:p-8" style={{ background: "linear-gradient(180deg, #1B293A 0%, #040711 10%)" }}>
-            <div className="max-w-7xl mx-auto pb-20 md:pb-0">
+            <div className="max-w-5xl mx-auto pb-20 md:pb-0">
 
                 {/* Header */}
-                <div className="mb-6 md:mb-8 space-y-4">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-800 pb-6">
-                        <div>
-                            <h1 className="text-3xl md:text-5xl font-bold mb-2">Editar Evento</h1>
-                            {formData.title && (
-                                <h2 className="text-lg md:text-xl text-blue-400 font-medium flex items-center gap-2 truncate max-w-[300px] md:max-w-none">
-                                    {formData.title}
-                                </h2>
-                            )}
-                        </div>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-gray-800 pb-6">
+                    <div>
+                        <h1 className="text-3xl md:text-5xl font-bold mb-2">Crear Nuevo Evento</h1>
                     </div>
                 </div>
 
                 {error && <ErrorDisplay message={error} />}
 
-                <form onSubmit={handleSave} className="space-y-8">
+                <form onSubmit={handleCreate} className="space-y-8">
 
                     {/* Sección 1: Información Básica */}
                     <div className="bg-[#0B1121] border border-gray-800 rounded-2xl p-6">
@@ -241,12 +200,12 @@ export default function EditEventPage() {
                                     name="title"
                                     value={formData.title}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none"
                                     required
+                                    placeholder="Ej. Introducción a la Inteligencia Artificial"
                                 />
                             </div>
 
-                            {/* Custom Select: Tipo de Evento */}
                             <div className="relative z-20">
                                 <label className="block text-sm text-gray-400 mb-1">Tipo de Evento</label>
                                 <CustomSelect
@@ -257,7 +216,6 @@ export default function EditEventPage() {
                                 />
                             </div>
 
-                            {/* Custom Select: Presentador */}
                             <div className="relative z-20">
                                 <label className="block text-sm text-gray-400 mb-1">Presentador</label>
                                 <CustomSelect
@@ -275,6 +233,7 @@ export default function EditEventPage() {
                                     value={formData.description}
                                     onChange={handleChange}
                                     rows={4}
+                                    placeholder="Describe brevemente de qué tratará el evento..."
                                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none resize-none"
                                 />
                             </div>
@@ -294,7 +253,7 @@ export default function EditEventPage() {
                                     name="date"
                                     value={formData.date}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none [color-scheme:dark]"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none [color-scheme:dark]"
                                     required
                                 />
                             </div>
@@ -306,12 +265,11 @@ export default function EditEventPage() {
                                     value={formData.duration}
                                     onChange={handleChange}
                                     min={1}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none"
                                     required
                                 />
                             </div>
 
-                            {/* Custom Select: Modalidad */}
                             <div className="relative z-10">
                                 <label className="block text-sm text-gray-400 mb-1">Modalidad</label>
                                 <CustomSelect
@@ -321,7 +279,6 @@ export default function EditEventPage() {
                                 />
                             </div>
 
-                            {/* Capacidad (Siempre editable) */}
                             <div>
                                 <label className="block text-sm text-gray-400 mb-1">Capacidad Máxima</label>
                                 <input
@@ -330,11 +287,10 @@ export default function EditEventPage() {
                                     value={formData.capacity}
                                     onChange={handleChange}
                                     min={0}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none"
                                 />
                             </div>
 
-                            {/* Campos condicionales */}
                             {(formData.modality === 'in-person' || formData.modality === 'hybrid') && (
                                 <div className="col-span-2">
                                     <label className="block text-sm text-gray-400 mb-1 flex items-center gap-1"><MapPin size={14} /> Ubicación Física</label>
@@ -344,7 +300,7 @@ export default function EditEventPage() {
                                         value={formData.location}
                                         onChange={handleChange}
                                         placeholder="Ej. Auditorio A, Edificio Central"
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none"
                                     />
                                 </div>
                             )}
@@ -358,7 +314,7 @@ export default function EditEventPage() {
                                         value={formData.link}
                                         onChange={handleChange}
                                         placeholder="Ej. https://zoom.us/j/..."
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none"
                                     />
                                 </div>
                             )}
@@ -389,7 +345,7 @@ export default function EditEventPage() {
                         <div className="space-y-2">
                             {formData.requirements.length === 0 && <p className="text-gray-500 text-sm italic">No hay requisitos agregados.</p>}
                             {formData.requirements.map((req, idx) => (
-                                <div key={idx} className="flex justify-between items-center bg-gray-900 px-4 py-3 rounded-lg border border-gray-800">
+                                <div key={idx} className="flex justify-between items-center bg-gray-900 px-4 py-2.5 rounded-lg border border-gray-800">
                                     <span className="text-gray-300 text-sm">• {req}</span>
                                     <button
                                         type="button"
@@ -416,7 +372,7 @@ export default function EditEventPage() {
                         <div className="space-y-3">
                             {materials.length === 0 && <p className="text-gray-500 text-sm italic text-center py-4">No se han subido materiales.</p>}
                             {materials.map((file, idx) => (
-                                <div key={idx} className="flex justify-between items-center bg-gray-900 px-4 py-3 rounded-lg border border-gray-800">
+                                <div key={idx} className="flex justify-between items-center bg-gray-900 px-4 py-2.5 rounded-lg border border-gray-800">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-blue-400">
                                             <FileText size={16} />
@@ -439,21 +395,14 @@ export default function EditEventPage() {
                         <p className="text-xs text-gray-600 mt-4">* La subida de archivos es una simulación visual.</p>
                     </div>
 
-
-                    <div className="flex gap-3 w-full md:w-auto justify-end">
+                    {/* Footer Actions (Bottom) */}
+                    <div className="flex justify-end pt-4">
                         <button
-                            type="button"
-                            onClick={handleDelete}
-                            className="flex-1 md:flex-none px-4 py-2 bg-red-900/20 hover:bg-red-900/40 cursor-pointer text-red-400 border border-red-900/50 rounded-lg flex items-center justify-center gap-2 transition-all"
-                        >
-                            Eliminar
-                        </button>
-                        <button
-                            onClick={handleSave}
+                            onClick={handleCreate}
                             disabled={isSaving}
-                            className="flex-1 md:flex-none px-6 py-2 bg-white text-black font-semibold rounded-lg hover:rounded-3xl duration-300 hover:cursor-pointer hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full md:w-auto px-8 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 hover:rounded-3xl duration-300 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-white/10"
                         >
-                            Guardar Cambios
+                            {isSaving ? <LoadingSpinner size="sm" /> : "Crear Evento"}
                         </button>
                     </div>
 

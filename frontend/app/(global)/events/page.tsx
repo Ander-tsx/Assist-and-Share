@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import api from "@/lib/api"
+import Link from "next/link" // Importamos Link para la navegación
+import { Plus } from "lucide-react" // Icono para el botón
 
 import AnimatedSwitch from "@/app/components/(ui)/AnimatedSwitch"
 import EventFilterBar from "@/app/components/(global)/events/EventFilterBar"
@@ -147,9 +149,13 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen text-white p-4 md:p-8" style={{ background: "linear-gradient(180deg, #1B293A 0%, #040711 10%)" }}>
       <div className="max-w-7xl mx-auto">
+
         {/* Header Responsive: Columna en móvil, Fila en desktop */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-5xl font-bold">{pageTitle}</h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+            <h1 className="text-3xl md:text-5xl font-bold">{pageTitle}</h1>
+          </div>
+
           <div className="w-full md:w-auto">
             <AnimatedSwitch
               value={dateFilter}
@@ -183,7 +189,6 @@ export default function EventsPage() {
             {Object.entries(groupedEvents).map(([dateKey, dateEvents], groupIndex) => {
               const groupDate = new Date(dateKey + 'T00:00:00');
 
-              // Helper para formatear fecha
               const dayNum = groupDate.toLocaleDateString("es-MX", { day: "numeric" });
               const month = groupDate.toLocaleDateString("es-MX", { month: "long" }).replace(/^\w/, c => c.toUpperCase());
               const weekday = groupDate.toLocaleDateString("es-MX", { weekday: "long" });
@@ -191,14 +196,14 @@ export default function EventsPage() {
               return (
                 <div key={dateKey} className="relative flex flex-col md:flex-row">
 
-                  {/* --- VERSIÓN MÓVIL: Encabezado de fecha (Solo visible en pantallas chicas) --- */}
+                  {/* --- VERSIÓN MÓVIL: Encabezado de fecha --- */}
                   <div className="md:hidden pb-4 mb-2 border-b border-gray-800">
                     <p className="text-xl font-bold text-white">
                       {dayNum} de {month} <span className="text-gray-500 font-normal text-base capitalize">({weekday})</span>
                     </p>
                   </div>
 
-                  {/* --- VERSIÓN DESKTOP: Columna Izquierda - Fecha (Oculta en móvil) --- */}
+                  {/* --- VERSIÓN DESKTOP: Columna Izquierda - Fecha --- */}
                   <div className="hidden md:block flex-shrink-0 w-48 pr-8 pt-2">
                     <div className="text-left">
                       <p className="text-xl font-semibold">
@@ -210,7 +215,7 @@ export default function EventsPage() {
                     </div>
                   </div>
 
-                  {/* --- VERSIÓN DESKTOP: Línea vertical (Oculta en móvil) --- */}
+                  {/* --- VERSIÓN DESKTOP: Línea vertical --- */}
                   <div className="hidden md:flex relative flex-shrink-0 w-8 flex-col items-center">
                     <div className="w-3 h-3 rounded-full bg-gray-600 mt-3 z-10"></div>
                     {groupIndex < Object.keys(groupedEvents).length - 1 && (

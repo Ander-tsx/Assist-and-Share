@@ -65,8 +65,8 @@ export default function Header() {
     // --- DETECCIÓN DE RUTAS ---
     const isEventDetails = pathname.startsWith('/event-details')
     const isAttendees = pathname.startsWith('/attendees')
-    // Detectamos la ruta de edición (asumiendo /events/edit/[id])
     const isEventEdit = pathname.startsWith('/events/edit') || pathname.startsWith('/event-edit')
+    const isCreateEvent = pathname.startsWith('/create-event') // Nueva detección
 
     // --- Carga de Usuario ---
     const fetchUser = async () => {
@@ -133,11 +133,11 @@ export default function Header() {
 
                     {/* LOGO */}
                     <Link
-                        href="/events"
+                        href={user?.role === 'admin' ? "/users" : "/events"}
                         className="flex items-center gap-2 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        <span className="text-xl font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors">
+                        <span className="text-xl font-bold tracking-tight text-white">
                             Assist & Share
                         </span>
                     </Link>
@@ -145,8 +145,10 @@ export default function Header() {
                     {/* LINKS DESKTOP */}
                     <div className="hidden md:flex md:items-center md:gap-6">
                         {currentLinks.map((link) => {
+                            // Ahora incluimos isCreateEvent en la condición de activo
                             const isActive = pathname === link.href ||
-                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit))
+                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit)) ||
+                                (link.href === '/create-event' && isCreateEvent)
 
                             return (
                                 <Link
@@ -169,7 +171,7 @@ export default function Header() {
                             <>
                                 <button
                                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                    className={`flex items-center gap-3 py-1 px-2 rounded-lg transition-all hover:cursor-pointer ${isUserMenuOpen ? 'bg-gray-800' : 'hover:bg-gray-900'}`}
+                                    className={`flex items-center gap-3 py-1 px-2 rounded-lg transition-all hover:cursor-pointer ${isUserMenuOpen ? 'bg-gray-800' : 'hover:bg-white/2'}`}
                                 >
                                     <div className="text-right hidden lg:block">
                                         <div className="text-sm font-medium text-white">{userData.first_name}</div>
@@ -284,8 +286,8 @@ export default function Header() {
                 </div>
             </nav>
 
-            {/* --- BREADCRUMB (Navegación secundaria) --- */}
-            {(isEventDetails || isAttendees || isEventEdit) && (
+            {/* --- BREADCRUMB (Event Details / Attendees / Create Event) --- */}
+            {(isEventDetails || isAttendees || isEventEdit || isCreateEvent) && (
                 <div className="w-full border-b border-gray-800 bg-gray-900/2">
                     <div className="max-w-7xl mx-auto px-4 py-2 text-xs font-medium flex items-center gap-2 text-gray-400">
 
@@ -299,7 +301,6 @@ export default function Header() {
                         {/* 2. Nivel Intermedio y Final */}
                         {isAttendees || isEventEdit ? (
                             <>
-                                {/* Link intermedio hacia Detalles */}
                                 <Link
                                     href={`/event-details/${pathname.split('/').pop()}`}
                                     className="hover:text-white transition"
@@ -308,11 +309,13 @@ export default function Header() {
                                 </Link>
                                 <ChevronRight size={14} className="text-gray-600" />
 
-                                {/* Nombre de la página actual */}
                                 <span className="text-gray-200">
                                     {isAttendees ? 'Asistentes' : 'Edición'}
                                 </span>
                             </>
+                        ) : isCreateEvent ? (
+                            // Si estamos en crear evento
+                            <span className="text-gray-200">Creación</span>
                         ) : (
                             // Si estamos en detalles
                             <span className="text-gray-200">
@@ -377,7 +380,7 @@ export default function Header() {
                                             <input
                                                 value={formData.speciality}
                                                 onChange={e => setFormData({ ...formData, speciality: e.target.value })}
-                                                className="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                                                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
                                             />
                                         </div>
                                         <div className="flex gap-2 pt-2">
@@ -400,8 +403,10 @@ export default function Header() {
                         )}
 
                         {currentLinks.map((link) => {
+                            // Activo también en mobile
                             const isActive = pathname === link.href ||
-                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit))
+                                (link.href === '/events' && (isEventDetails || isAttendees || isEventEdit)) ||
+                                (link.href === '/create-event' && isCreateEvent)
 
                             return (
                                 <Link
