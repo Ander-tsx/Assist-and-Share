@@ -191,11 +191,11 @@ export default function EventAttendeesPage() {
                                             <div className="flex justify-between items-start gap-3">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-sm font-bold text-gray-300 shadow-inner">
-                                                        {att.user.first_name[0]}{att.user.last_name[0]}
+                                                        {att.user?.first_name?.[0] || "?"}{att.user?.last_name?.[0] || "?"}
                                                     </div>
                                                     <div>
                                                         <div className="font-medium text-white text-base">
-                                                            {att.user.first_name} {att.user.last_name}
+                                                            {att.user?.first_name?.[0] || "?"} {att.user?.last_name?.[0] || "?"}
                                                         </div>
                                                         <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
                                                             <Clock size={10} />
@@ -211,7 +211,7 @@ export default function EventAttendeesPage() {
                                             {/* Card Body: Info Extra */}
                                             <div className="text-sm text-gray-400 bg-gray-950/50 p-3 rounded-lg flex items-center gap-2 border border-gray-800/50">
                                                 <Mail size={14} className="text-gray-500" />
-                                                <span className="truncate">{att.user.email}</span>
+                                                <span className="truncate">{att.user?.email}</span>
                                             </div>
 
                                             {/* Card Footer: Botones (Grid para fácil touch) */}
@@ -262,16 +262,16 @@ export default function EventAttendeesPage() {
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-xs font-bold text-gray-300">
-                                                                {att.user.first_name[0]}{att.user.last_name[0]}
+                                                                {att.user?.first_name?.[0] || "?"}{att.user?.last_name?.[0] || "?"}
                                                             </div>
                                                             <div className="font-medium text-white">
-                                                                {att.user.first_name} {att.user.last_name}
+                                                                {att.user?.first_name || "?"} {att.user?.last_name || "?"}
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-gray-400 text-sm">
                                                         <div className="flex items-center gap-2">
-                                                            <Mail size={14} className="opacity-50" /> {att.user.email}
+                                                            <Mail size={14} className="opacity-50" /> {att.user?.email || "?"}
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-gray-400 text-sm">
