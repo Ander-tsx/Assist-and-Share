@@ -55,6 +55,17 @@ const MODALITY_OPTIONS = [
     { value: "hybrid", label: "Híbrido" },
 ]
 
+// Función auxiliar para obtener fecha mínima (fuera del componente)
+function getMinDateTime(): string {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 export default function CreateEventPage() {
     const router = useRouter()
     const { user } = useAuth()
@@ -64,6 +75,7 @@ export default function CreateEventPage() {
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState("")
     const [presenters, setPresenters] = useState<Presenter[]>([])
+    const [minDateTime] = useState(getMinDateTime())
 
     const [formData, setFormData] = useState<EventFormData>({
         title: "",
@@ -253,6 +265,7 @@ export default function CreateEventPage() {
                                     name="date"
                                     value={formData.date}
                                     onChange={handleChange}
+                                    min={minDateTime}
                                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none [color-scheme:dark]"
                                     required
                                 />
@@ -398,7 +411,7 @@ export default function CreateEventPage() {
                     {/* Footer Actions (Bottom) */}
                     <div className="flex justify-end pt-4">
                         <button
-                            onClick={handleCreate}
+                            type="submit"
                             disabled={isSaving}
                             className="w-full md:w-auto px-8 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 hover:rounded-3xl duration-300 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-white/10"
                         >
