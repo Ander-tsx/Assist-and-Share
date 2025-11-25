@@ -7,7 +7,7 @@ import api from "@/lib/api"
 
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
-import QRModal from "@/app/components/(ui)/QRModal"
+// QRModal eliminado de aquí (movido a EventActions)
 import EventHeader from "@/app/components/(global)/event-details/EventHeader"
 import EventInfo from "@/app/components/(global)/event-details/EventInfo"
 import EventActions from "@/app/components/(global)/event-details/EventActions"
@@ -62,22 +62,25 @@ export default function EventDetail() {
   const [presenter, setPresenter] = useState<Presenter | null>(null)
   const [materials, setMaterials] = useState<Material[]>([])
   const [assistance, setAssistance] = useState<any>(null)
+
   const ACTIVE_STATUSES = ["pending", "approved"]
   const isPending = assistance?.status === "pending"
   const isApproved = assistance?.status === "approved"
+  // Safe check para assistance
   const isEnrolled = !!assistance && ACTIVE_STATUSES.includes(assistance.status)
   const isPastEvent = event ? new Date(event.date) < new Date() : false
   const isRejected = assistance?.status === "rejected"
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false)
+
+  // Estado UI eliminado: isQRModalOpen ya no se usa aquí
 
   // Estado de la UI (carga y errores)
-  const [isLoadingEvent, setIsLoadingEvent] = useState(true) // Corregido de loadingEvent a isLoadingEvent
+  const [isLoadingEvent, setIsLoadingEvent] = useState(true)
   const [error, setError] = useState("")
 
   // Estado de Edición (Formulario)
   const [description, setDescription] = useState("")
   const [requirements, setRequirements] = useState("")
-  const [hasChanges, setHasChanges] = useState(false) // Corregido de changed a hasChanges
+  const [hasChanges, setHasChanges] = useState(false)
 
   // --- Carga de Datos ---
 
@@ -93,14 +96,12 @@ export default function EventDetail() {
       setRequirements(currentEvent.requirements?.join("\n") || "")
 
       if (currentEvent.presenter) {
-        // ESTÁNDAR APLICADO: Desestructuración descriptiva
         const { data: presenterData } = await api.get(
           `/users/${currentEvent.presenter}`
         )
         setPresenter(presenterData.value)
       }
 
-      // TODO: Esto debería venir de la API a futuro cracks
       setMaterials([
         {
           id: "1",
@@ -139,8 +140,6 @@ export default function EventDetail() {
     }
   }
 
-
-
   useEffect(() => {
     if (!id || !user) return
     fetchEvent()
@@ -177,15 +176,11 @@ export default function EventDetail() {
   const handleCancel = async () => {
     if (!assistance) return
     try {
-      // optimista: deshabilitar UI o marcar null inmediatamente
       setAssistance(null)
-
       await api.delete(`/assistance/${assistance._id}`)
-      // volver a consultar para garantizar consistencia (y actualizar event si aplica)
       await fetchUserAssistance()
       await fetchEvent()
     } catch (err: any) {
-      // si falla, volver a intentar obtener el estado real
       await fetchUserAssistance()
       setError(err.response?.data?.message || "Error al cancelar inscripción")
     }
@@ -208,7 +203,7 @@ export default function EventDetail() {
 
   // --- Lógica de Renderizado ---
 
-  const isLoading = loadingAuth || isLoadingEvent // Corregido
+  const isLoading = loadingAuth || isLoadingEvent
 
   if (isLoading) {
     return (
@@ -234,7 +229,7 @@ export default function EventDetail() {
     )
   }
 
-  // --- tSX Principal ---
+  // --- TSX Principal ---
 
   return (
     <div className="min-h-screen text-white px-8 py-10" style={{ background: "linear-gradient(180deg, #1B293A 0%, #040711 10%)" }}>
@@ -259,15 +254,17 @@ export default function EventDetail() {
               isAttendee={user?.role === "attendee"}
               changed={hasChanges}
               eventId={event._id}
+              eventTitle={event.title} // Nueva prop
+              assistanceId={assistance?._id} // Nueva prop (pasamos el ID solo si existe)
               onSaveChanges={handleSaveChanges}
               onEnroll={handleEnroll}
               onCancel={handleCancel}
-              isEnrolled={!!assistance && ACTIVE_STATUSES.includes(assistance.status)}
+              isEnrolled={isEnrolled}
               isPending={isPending}
               isApproved={isApproved}
               isRejected={isRejected}
-              onViewQR={() => setIsQRModalOpen(true)}
-              isPastEvent={isPastEvent} />
+              isPastEvent={isPastEvent}
+            />
 
           </div>
         </div>
@@ -289,12 +286,8 @@ export default function EventDetail() {
           canEdit={user?.role === "presenter" && user?.id === event?.presenter}
           onRemove={handleRemoveMaterial}
         />
-        <QRModal
-          isOpen={isQRModalOpen}
-          onClose={() => setIsQRModalOpen(false)}
-          qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(`${process.env.NEXT_PUBLIC_API_URL}/assistance/checkin/${assistance._id}`)}`}
-          title={event.title}
-        />
+
+        {/* Modal eliminado de aquí, ahora vive dentro de EventActions */}
       </div>
     </div>
   )

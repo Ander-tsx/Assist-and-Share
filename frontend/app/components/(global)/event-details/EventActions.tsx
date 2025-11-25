@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { AlertCircle, Ban } from "lucide-react" // Importamos iconos para el mensaje de rechazo
+import { AlertCircle, Ban } from "lucide-react"
 import type { User } from "@/hooks/useAuth"
+import QRModal from "@/app/components/(ui)/QRModal" // Asegúrate de que la ruta sea correcta
 
 interface EventActionsProps {
   user: User | null
@@ -11,6 +13,8 @@ interface EventActionsProps {
   isAttendee: boolean
   changed: boolean
   eventId: string
+  eventTitle: string // Nuevo: Para el título del Modal
+  assistanceId?: string // Nuevo: Para generar el link del QR
   onSaveChanges: () => void
   onEnroll: () => void
   isEnrolled: boolean
@@ -18,7 +22,6 @@ interface EventActionsProps {
   isPending: boolean
   isApproved: boolean
   isRejected: boolean
-  onViewQR: () => void
   isPastEvent: boolean
 }
 
@@ -29,6 +32,8 @@ export default function EventActions({
   isAttendee,
   changed,
   eventId,
+  eventTitle,
+  assistanceId,
   onSaveChanges,
   onEnroll,
   isEnrolled,
@@ -36,10 +41,11 @@ export default function EventActions({
   isPending,
   isApproved,
   isRejected,
-  onViewQR,
   isPastEvent,
 }: EventActionsProps) {
   const router = useRouter()
+  // Estado local para manejar el Modal dentro de este componente
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false)
 
   if (!user) return null
 
@@ -70,8 +76,8 @@ export default function EventActions({
             disabled={!changed}
             onClick={onSaveChanges}
             className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-300 ${changed
-              ? "bg-white text-black hover:bg-gray-200 hover:shadow-lg hover:shadow-white/20 hover:rounded-3xl duration-300 cursor-pointer"
-              : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                ? "bg-white text-black hover:bg-gray-200 hover:shadow-lg hover:shadow-white/20 hover:rounded-3xl duration-300 cursor-pointer"
+                : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
               }`}
           >
             Guardar cambios
@@ -89,7 +95,6 @@ export default function EventActions({
       {/* --- ATTENDEE ACTIONS --- */}
       {isAttendee && !isPastEvent && (
         <div className="flex flex-col gap-3">
-
           {/* ESTADO: NO INSCRITO (Nuevo o Rechazado) */}
           {!isEnrolled && (
             <>
@@ -135,20 +140,34 @@ export default function EventActions({
 
           {/* ESTADO: APROBADO */}
           {isApproved && (
-            <div className="flex gap-4">
-              <button
-                onClick={onCancel}
-                className="flex-1 py-3 bg-gray-800 text-white border border-gray-700 rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:bg-gray-700"
-              >
-                Cancelar inscripción
-              </button>
-              <button
-                onClick={onViewQR}
-                className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl shadow-lg hover:shadow-green-500/20"
-              >
-                Ver QR
-              </button>
-            </div>
+            <>
+              <div className="flex gap-4">
+                <button
+                  onClick={onCancel}
+                  className="flex-1 py-3 bg-gray-800 text-white border border-gray-700 rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:bg-gray-700"
+                >
+                  Cancelar inscripción
+                </button>
+                <button
+                  onClick={() => setIsQRModalOpen(true)}
+                  className="flex-1 py-3 bg-white hover:bg-white/90 text-black rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:rounded-3xl shadow-lg hover:shadow-green-500/20"
+                >
+                  Ver QR
+                </button>
+              </div>
+
+              {/* MODAL INTEGRADO AQUÍ */}
+              {assistanceId && (
+                <QRModal
+                  isOpen={isQRModalOpen}
+                  onClose={() => setIsQRModalOpen(false)}
+                  qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+                    `${process.env.NEXT_PUBLIC_API_URL}/assistance/checkin/${assistanceId}`
+                  )}`}
+                  title={eventTitle}
+                />
+              )}
+            </>
           )}
         </div>
       )}
