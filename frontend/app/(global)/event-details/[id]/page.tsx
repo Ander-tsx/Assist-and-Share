@@ -7,6 +7,7 @@ import api from "@/lib/api"
 
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
+import QRModal from "@/app/components/(ui)/QRModal"
 import EventHeader from "@/app/components/(global)/event-details/EventHeader"
 import EventInfo from "@/app/components/(global)/event-details/EventInfo"
 import EventActions from "@/app/components/(global)/event-details/EventActions"
@@ -67,6 +68,7 @@ export default function EventDetail() {
   const isEnrolled = !!assistance && ACTIVE_STATUSES.includes(assistance.status)
   const isPastEvent = event ? new Date(event.date) < new Date() : false
   const isRejected = assistance?.status === "rejected"
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false)
 
   // Estado de la UI (carga y errores)
   const [isLoadingEvent, setIsLoadingEvent] = useState(true) // Corregido de loadingEvent a isLoadingEvent
@@ -264,7 +266,7 @@ export default function EventDetail() {
               isPending={isPending}
               isApproved={isApproved}
               isRejected={isRejected}
-              onViewQR={() => { }}
+              onViewQR={() => setIsQRModalOpen(true)}
               isPastEvent={isPastEvent} />
 
           </div>
@@ -286,6 +288,12 @@ export default function EventDetail() {
           materials={materials}
           canEdit={user?.role === "presenter" && user?.id === event?.presenter}
           onRemove={handleRemoveMaterial}
+        />
+        <QRModal
+          isOpen={isQRModalOpen}
+          onClose={() => setIsQRModalOpen(false)}
+          qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(`${process.env.NEXT_PUBLIC_API_URL}/assistance/checkin/${assistance._id}`)}`}
+          title={event.title}
         />
       </div>
     </div>
