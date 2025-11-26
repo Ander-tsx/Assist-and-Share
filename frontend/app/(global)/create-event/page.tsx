@@ -167,12 +167,42 @@ export default function CreateEventPage() {
         }))
     }
 
-    const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0]
-            setMaterials(prev => [...prev, { name: file.name, size: `${(file.size / 1024).toFixed(1)} KB` }])
-        }
+    const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+
+    const file = e.target.files[0]
+    const formDataToSend = new FormData()
+    formDataToSend.append("file", file)
+
+    setError("")
+    setIsSaving(true) // opcional: puedes usar otro estado como isUploading
+
+    try {
+        // Llamada al backend: /uploads/material
+        const uploadRes = await api.post("/uploads/material", formDataToSend, {
+            headers: { "Content-Type": "multipart/form-data" }
+        })
+
+        const secureUrl = uploadRes.data.secure_url
+
+        // Agregar el archivo subido a la lista visual
+        setMaterials(prev => [
+            ...prev,
+            {
+                name: file.name,
+                size: `${(file.size / 1024).toFixed(1)} KB`,
+                url: secureUrl
+            }
+        ])
+
+    } catch (err: any) {
+        console.error(err)
+        setError("Error al subir el archivo. Inténtalo nuevamente.")
+    } finally {
+        setIsSaving(false)
     }
+}
+
 
     const handleRemoveMaterial = (index: number) => {
         setMaterials(prev => prev.filter((_, i) => i !== index))

@@ -70,6 +70,16 @@ export default function EventDetail() {
   const isPastEvent = event ? new Date(event.date) < new Date() : false
   const isRejected = assistance?.status === "rejected"
 
+  const getFileType = (url: string): Material["type"] | "image" => {
+  if (url.match(/\.pdf$/i)) return "pdf"
+  if (url.match(/\.(pptx|ppt)$/i)) return "pptx"
+  if (url.match(/\.(xlsx|xls)$/i)) return "xlsx"
+  if (url.match(/\.(docx|doc)$/i)) return "docx"
+  if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) return "image"
+  return "docx" // fallback seguro
+}
+
+
   // Estado de la UI (carga y errores)
   const [isLoadingEvent, setIsLoadingEvent] = useState(true)
   const [error, setError] = useState("")
@@ -103,22 +113,27 @@ export default function EventDetail() {
         setPresenter(presenterData.value)
       }
 
-      setMaterials([
-        {
-          id: "1",
-          name: "Presentación NodeJS.pptx",
-          type: "pptx",
-          uploadDate: "15 de Octubre de 2025",
-          url: "#",
-        },
-        {
-          id: "2",
-          name: "Datos NodeJS.xlsx",
-          type: "xlsx",
-          uploadDate: "15 de Octubre de 2025",
-          url: "#",
-        },
-      ])
+// TODO: Esto debería venir de la API a futuro cracks
+// Cargar materiales si vienen como arreglo de URLs
+if (Array.isArray(currentEvent.materials)) {
+  const formatted = currentEvent.materials.map((url: string, index: number) => {
+    const fileName = url.split("/").pop() || `material_${index + 1}`;
+    const fileType = getFileType(fileName);
+
+    return {
+      id: `${index + 1}`,
+      name: fileName,
+      type: fileType,
+      uploadDate: new Date(currentEvent.updatedAt).toLocaleDateString("es-MX"),
+      url
+    };
+  });
+
+  setMaterials(formatted);
+} else {
+  setMaterials([]);
+}
+
     } catch (err: any) {
       const errMsg = err.response?.data?.message || "Error al cargar el evento"
       setError(errMsg)
