@@ -1,23 +1,21 @@
-import express from "express";
-import { EventController } from "./event.controller.js";
+import express from "express"
+const router = express.Router()
+
 import upload from "../../middlewares/upload.js"
+import { EventController } from "./event.controller.js"
 
-router.get("/", EventController.getAllEvents);
-router.get("/:id", EventController.getEventById);
-router.post("/", EventController.createEvent);
-router.post("/:id/start", EventController.startEvent);
-router.post("/:id/complete", EventController.completeEvent);
-router.put("/:id", EventController.updateEvent);
-router.delete("/:id", EventController.deleteEvent);
 
-/* ======================================================
-   NUEVA RUTA: Subir material a un evento
-   POST /events/:id/material
-====================================================== */
+router.get("/", EventController.getAllEvents)
+router.get("/:id", EventController.getEventById)
+router.post("/", EventController.createEvent)
+router.put("/:id", EventController.updateEvent)
+router.delete("/:id", EventController.deleteEvent)
+
+
 router.post(
   "/:id/material",
-  upload.single("file"),               // ← middleware multer
-  EventController.uploadMaterialToEvent // ← controlador correcto
-);
+  upload.single("file"), 
+  EventController.uploadMaterialToEvent
+)
 
-export default router;
+export default router

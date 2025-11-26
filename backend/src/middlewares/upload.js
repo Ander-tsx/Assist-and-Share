@@ -1,6 +1,10 @@
-import multer from "multer";
+import multer from "multer"
 
-// Usamos memoria para poder mandar el buffer a Cloudinary
-const storage = multer.memoryStorage();
+const storage = multer.memoryStorage()
 
-export const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB
+})
+
+export default upload
