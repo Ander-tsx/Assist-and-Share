@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { addNotDeletedFilter } from "../utils/addNotDeletedMongoFilter";
+import { addNotDeletedFilter } from "../utils/addNotDeletedMongoFilter.js";
 
 const eventSchema = new mongoose.Schema(
     {
