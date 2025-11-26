@@ -13,6 +13,7 @@ import Link from "next/link"
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
 import CustomSelect from "@/app/components/(ui)/CustomSelect"
+import ConfirmationModal from "@/app/components/(ui)/ConfirmationModal"
 
 // --- Interfaces ---
 
@@ -79,6 +80,10 @@ export default function EditEventPage() {
     const [dateError, setDateError] = useState("")
     const [presenters, setPresenters] = useState<Presenter[]>([])
     const [minDateTime] = useState(getMinDateTime())
+
+    // Estados del modal de eliminación
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const [formData, setFormData] = useState<EventFormData>({
         title: "",
@@ -219,17 +224,26 @@ export default function EditEventPage() {
         }
     }
 
-    const handleDelete = async () => {
-        if (!confirm("¿Estás seguro de que quieres eliminar este evento?")) return
+    const handleDeleteClick = () => {
+        setShowDeleteModal(true)
+    }
 
-        setIsSaving(true)
+    const handleConfirmDelete = async () => {
+        setIsDeleting(true)
         try {
             await api.delete(`/events/${eventId}`)
             router.push("/events")
         } catch (err: any) {
             console.error(err)
             setError(err.response?.data?.message || "Error al eliminar el evento")
-            setIsSaving(false)
+            setIsDeleting(false)
+            setShowDeleteModal(false)
+        }
+    }
+
+    const handleCloseModal = () => {
+        if (!isDeleting) {
+            setShowDeleteModal(false)
         }
     }
 
@@ -255,7 +269,7 @@ export default function EditEventPage() {
 
                 {error && <ErrorDisplay message={error} />}
 
-                <form onSubmit={handleSave} className="space-y-8">
+                <div className="space-y-8">
 
                     {/* Sección 1: Información Básica */}
                     <div className="bg-[#0B1121] border border-gray-800 rounded-2xl p-6">
@@ -478,13 +492,14 @@ export default function EditEventPage() {
                     <div className="flex gap-3 w-full md:w-auto justify-end">
                         <button
                             type="button"
-                            onClick={handleDelete}
+                            onClick={handleDeleteClick}
                             className="flex-1 md:flex-none px-4 py-2 bg-red-900/20 hover:bg-red-900/40 cursor-pointer text-red-400 border border-red-900/50 rounded-lg flex items-center justify-center gap-2 transition-all"
                         >
                             Eliminar
                         </button>
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={handleSave}
                             disabled={isSaving}
                             className="flex-1 md:flex-none px-6 py-2 bg-white text-black font-semibold rounded-lg hover:rounded-3xl duration-300 hover:cursor-pointer hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
@@ -492,8 +507,21 @@ export default function EditEventPage() {
                         </button>
                     </div>
 
-                </form>
+                </div>
             </div>
+
+            {/* Modal de Confirmación de Eliminación */}
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={handleCloseModal}
+                onConfirm={handleConfirmDelete}
+                title="Eliminar evento"
+                message="¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer y todos los datos relacionados se perderán permanentemente."
+                confirmText="Sí, eliminar"
+                cancelText="No, mantener"
+                variant="danger"
+                isLoading={isDeleting}
+            />
         </div>
     )
 }
