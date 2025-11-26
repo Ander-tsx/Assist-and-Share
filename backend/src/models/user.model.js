@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { addNotDeletedFilter } from "../utils/addNotDeletedMongoFilter";
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -46,6 +47,11 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
+
+eventSchema.pre("find", addNotDeletedFilter);
+eventSchema.pre("findOne", addNotDeletedFilter);
+eventSchema.pre("findOneAndUpdate", addNotDeletedFilter);
+eventSchema.pre("countDocuments", addNotDeletedFilter);
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();

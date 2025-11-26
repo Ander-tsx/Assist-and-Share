@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { addNotDeletedFilter } from "../utils/addNotDeletedMongoFilter";
 
 const eventSchema = new mongoose.Schema(
     {
@@ -98,5 +99,10 @@ eventSchema.methods.logicalDelete = async function () {
     await this.save();
     return this;
 }
+
+eventSchema.pre("find", addNotDeletedFilter);
+eventSchema.pre("findOne", addNotDeletedFilter);
+eventSchema.pre("findOneAndUpdate", addNotDeletedFilter);
+eventSchema.pre("countDocuments", addNotDeletedFilter);
 
 export const Event = mongoose.model("Event", eventSchema);
