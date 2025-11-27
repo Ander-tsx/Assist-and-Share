@@ -11,7 +11,7 @@ router.post("/", authMiddleware(["admin"]), SurveyController.createSurvey);
 router.get("/", authMiddleware(["presenter", "admin"]), SurveyController.getAllSurveys);
 
 // Obtener una encuesta por ID
-router.get("/:surveyId", authMiddleware(), SurveyController.getSurveyById);
+router.get("/:eventId", authMiddleware(), SurveyController.getSurveyById);
 
 // Actualizar encuesta (por ejemplo título, descripción o las preguntas de la encuesta)
 router.patch("/:surveyId", authMiddleware(["admin"]), SurveyController.updateSurvey);

@@ -28,9 +28,9 @@ export const SurveyService = {
         }
     },
 
-    getSurveyById: async (surveyId) => {
+    getSurveyById: async (eventId) => {
         try {
-            const survey = await Survey.findById(surveyId)
+            const survey = await Survey.findOne({ event: eventId })
                 .populate({
                     path: "questions",
                     select: "text order",

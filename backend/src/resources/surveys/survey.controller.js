@@ -32,8 +32,8 @@ export const SurveyController = {
 
     getSurveyById: async (req, res) => {
         try {
-            const surveyId = req.params.surveyId;
-            const survey = await SurveyService.getSurveyById(surveyId);
+            const eventId = req.params.eventId;
+            const survey = await SurveyService.getSurveyById(eventId);
             return ApiResponse.success(res, {
                 message: "Encuesta obtenida correctamente",
                 value: survey,
