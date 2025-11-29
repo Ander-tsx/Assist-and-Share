@@ -6,15 +6,6 @@ import { Assistance } from "../../models/assistance.model.js";
 import { deleteEventHtml } from "../../utils/html.js";
 
 export const EventService = {
-
-    addMaterialToEvent: async (eventId, material) => {
-    return Event.findByIdAndUpdate(
-        eventId,
-        { $push: { materials: material } },
-        { new: true }
-    );
-},
-
     getAllEvents: async (options) => {
         return await buildQuery(Event, options);
     },

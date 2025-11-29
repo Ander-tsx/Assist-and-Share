@@ -20,6 +20,7 @@ export const AuthService = {
                 last_name,
                 role,
                 speciality,
+                deleted: false,
             });
             await newUser.save();
 

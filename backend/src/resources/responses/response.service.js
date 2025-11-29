@@ -34,7 +34,7 @@ export const ResponseService = {
         try {
             const survey = await Survey.findById(surveyId).populate("event");
             if (!survey) throw ApiError.notFound("Encuesta no encontrada");
-            if (!survey.event.isActive) throw ApiError.badRequest("La encuesta pertenece a un evento inactivo");
+            if (!survey.event.deleted) throw ApiError.badRequest("La encuesta pertenece a un evento eliminado");
     
             const eventId = survey.event._id;
     

@@ -78,6 +78,16 @@ const eventSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        materials: {
+            type: [String],
+            default: [],
+            validate: {
+                validator: function (v) {
+                    return v.every(url => /^https?:\/\/.+/.test(url));
+                },
+                message: "Cada material debe ser una URL válida",
+            }
+        },
         type: {
             type: String,
             enum: ["workshop", "seminar", "conference"],

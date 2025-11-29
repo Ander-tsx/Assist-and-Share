@@ -102,45 +102,4 @@ export const EventController = {
             return controllerError(res, error);
         }
     },
-
-    /* ============================================================
-       SUBIR MATERIAL A CLOUDINARY Y GUARDARLO EN LA BD DEL EVENTO
-     ============================================================ */
-    uploadMaterialToEvent: async (req, res) => {
-        try {
-            const { id } = req.params;
-
-            if (!req.file) {
-                return ApiResponse.error(res, {
-                    message: "No se envió ningún archivo",
-                    status: 400,
-                });
-            }
-
-            const b64 = Buffer.from(req.file.buffer).toString("base64");
-            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-
-            const uploadRes = await cloudinary.uploader.upload(dataURI, {
-                folder: "events/materials",
-            });
-
-            const material = {
-                id: Date.now().toString(),
-                name: req.file.originalname,
-                url: uploadRes.secure_url,
-                uploadDate: new Date(),
-            };
-
-            const updatedEvent = await EventService.addMaterialToEvent(id, material);
-
-            return ApiResponse.success(res, {
-                message: "Material subido correctamente",
-                value: material,
-                event: updatedEvent,
-            });
-
-        } catch (error) {
-            return controllerError(res, error);
-        }
-    }
 };
