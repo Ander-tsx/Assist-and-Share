@@ -8,6 +8,7 @@ import { Computer, MapPin, User } from "lucide-react"
 interface Event {
   _id: string
   title: string
+  coverImage: string
   description: string
   capacity: number
   duration: number
@@ -142,7 +143,7 @@ export default function EventCard({ event, presenterName }: EventCardProps) {
 
         <div className="order-1 md:order-2 flex-shrink-0 w-full md:w-64 h-48 md:h-40 bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9VzbIhiRMB3MDNu1_rl05tug8QtXXRpKuUA&s"
+            src={event.coverImage}
             alt="Event preview"
             className="w-full h-full object-cover"
           />

@@ -76,7 +76,7 @@ export default function UploadMaterialPage() {
                 type="file"
                 multiple
                 accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx"
-                onChange={(e) => setFiles(Array.from(e.target.files))}
+                onChange={(e) => setFiles(Array.from(e.target.files || []))}
             />
 
             <br /><br />
