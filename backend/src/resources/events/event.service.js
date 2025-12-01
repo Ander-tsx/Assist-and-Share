@@ -3,7 +3,8 @@ import { Event } from "../../models/event.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { sendEmail } from "../../utils/mailer.js";
 import { Assistance } from "../../models/assistance.model.js";
-import { deleteEventHtml } from "../../utils/html.js";
+// Asegúrate de importar las funciones de HTML correctamente si las usas
+import { deleteEventHtml, startEventHtml, completeEventHtml, updateEventHtml } from "../../utils/html.js";
 
 export const EventService = {
     getAllEvents: async (options) => {
@@ -36,12 +37,12 @@ export const EventService = {
 
             if (assistances.length > 0) {
                 const emails = [...new Set(assistances.map(a => a.user.email))];
-
+                // Nota: Asegúrate de que startEventHtml esté importado
                 await sendEmail({
                     bcc: emails,
                     subject: `Inicio del evento: ${event.title}`,
                     text: `El evento "${event.title}" ha sido iniciado. Por favor, revisa los detalles actualizados.`,
-                    html: startEventHtml(event),
+                    html: startEventHtml ? startEventHtml(event) : `<p>El evento ${event.title} ha iniciado.</p>`,
                 });
             }
 
@@ -72,7 +73,7 @@ export const EventService = {
                     bcc: emails,
                     subject: `Finalización del evento: ${event.title}`,
                     text: `El evento "${event.title}" ha sido finalizado. Por favor, revisa los detalles actualizados.`,
-                    html: completeEventHtml(event),
+                    html: completeEventHtml ? completeEventHtml(event) : `<p>El evento ${event.title} ha finalizado.</p>`,
                 });
             }
 
@@ -86,6 +87,7 @@ export const EventService = {
 
     createEvent: async (data) => {
         try {
+            // data.materials ya viene en el body, Mongoose lo guardará automáticamente
             const newEvent = new Event(data);
             await newEvent.save();
             return newEvent;
@@ -114,7 +116,7 @@ export const EventService = {
                         bcc: emails,
                         subject: `Actualización del evento: ${event.title}`,
                         text: `El evento "${event.title}" ha sido actualizado. Por favor, revisa los detalles actualizados.`,
-                        html: updateEventHtml(event),
+                        html: updateEventHtml ? updateEventHtml(event) : `<p>El evento ${event.title} ha sido actualizado.</p>`,
                     });
                 } catch (emailError) {
                     console.error("No se pudo enviar correo de actualización:", emailError);
@@ -150,7 +152,7 @@ export const EventService = {
                     bcc: emails,
                     subject: `Eliminación del evento: ${event.title}`,
                     text: `El evento "${event.title}" ha sido eliminado. Por favor, revisa los detalles actualizados.`,
-                    html: deleteEventHtml(event),
+                    html: deleteEventHtml ? deleteEventHtml(event) : `<p>El evento ${event.title} ha sido cancelado.</p>`,
                 });
             }
 
@@ -161,23 +163,6 @@ export const EventService = {
             return !!deleted;
         } catch (error) {
             throw error;
-        }        
-    },
-
-    uploadTemporary: async (fileUrl) => {
-        try {
-            // Almacenar la o las URL en un evento al azar ñejejejee
-            const event = await Event.findById("692b3e14ea583cbc8c0970ee");
-            if (!event) {
-                throw ApiError.notFound("No hay eventos disponibles");
-            }
-
-            event.materials = fileUrl;
-            await event.save();
-            
-            return fileUrl;
-        } catch (error) {
-            throw error;
         }
-    }
+    },
 };

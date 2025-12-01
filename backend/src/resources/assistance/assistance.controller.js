@@ -80,6 +80,7 @@ export const AssistanceController = {
     },
 
     getByUser: async (req, res) => {
+        console.log("received petition on controller")
         const userId = req.params.userId;
 
         try {

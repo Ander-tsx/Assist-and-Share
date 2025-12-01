@@ -8,7 +8,7 @@ import { ResponseController } from "./response.controller.js";
 router.post("/", authMiddleware(["attendee"]), ResponseController.createResponse);
 
 // Obtener todas las respuestas (solo organizador o admin)
-router.get("/", authMiddleware(["organizer", "admin"]), ResponseController.getAllResponses);
+router.get("/", authMiddleware(["presenter", "admin"]), ResponseController.getAllResponses);
 
 // Obtener la respuesta del usuario actual
 router.get("/me", authMiddleware(["attendee"]), ResponseController.getMyResponse);
@@ -17,6 +17,6 @@ router.get("/me", authMiddleware(["attendee"]), ResponseController.getMyResponse
 router.patch("/:responseId", authMiddleware(["attendee"]), ResponseController.updateResponse);
 
 // Ver resumen/estadísticas de la encuesta (promedios)
-router.get("/summary", authMiddleware(["organizer", "admin"]), ResponseController.getSurveySummary);
+router.get("/summary", authMiddleware(["presenter", "admin"]), ResponseController.getSurveySummary);
 
 export default router;

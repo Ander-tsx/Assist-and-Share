@@ -100,27 +100,5 @@ export const EventController = {
         } catch (error) {
             return controllerError(res, error);
         }
-    },
-
-    uploadTemporary: async (req, res) => {
-        try {
-            const fileUrl = req.body.urls;
-
-            if (!fileUrl || fileUrl.length === 0) {
-                return ApiResponse.error(res, {
-                    message: "No se ha proporcionado ninguna URL",
-                    status: 400,
-                });
-            }
-
-            const response = await EventService.uploadTemporary(fileUrl);
-
-            return ApiResponse.success(res, {
-                message: "Archivo subido correctamente",
-                value: response,
-            });
-        } catch (error) {
-            return controllerError(res, error);
-        }
-    },
+    }
 };

@@ -5,19 +5,24 @@ import { ResponseService } from "./response.service.js";
 export const ResponseController = {
     createResponse: async (req, res) => {
         try {
-            const answers = req.body;
-            if (!Array.isArray(answers) || answers.length === 0)
-                throw ApiError.badRequest("Debe enviar un arreglo de respuestas");
+            const { answers, comment } = req.body;
+
+            if (!Array.isArray(answers) || answers.length === 0) {
+                throw new Error("Debe enviar un arreglo de respuestas");
+            }
 
             for (const a of answers) {
-                if (a.rating < 1 || a.rating > 5)
-                    throw ApiError.badRequest("Las puntuaciones deben estar entre 1 y 5");
+                if (a.rating < 1 || a.rating > 5) {
+                    throw new Error("Las puntuaciones deben estar entre 1 y 5");
+                }
             }
 
             const surveyId = req.params.surveyId;
+
             const userId = req.session.user.id;
 
-            const newResponse = await ResponseService.createResponse(surveyId, userId, answers);
+            const newResponse = await ResponseService.createResponse(surveyId, userId, answers, comment);
+
             return ApiResponse.success(res, {
                 message: "Respuesta creada correctamente",
                 value: newResponse,
@@ -26,7 +31,7 @@ export const ResponseController = {
             return controllerError(res, error);
         }
     },
-    
+
     getAllResponses: async (req, res) => {
         try {
             const surveyId = req.params.surveyId;
@@ -43,7 +48,9 @@ export const ResponseController = {
     getMyResponse: async (req, res) => {
         try {
             const surveyId = req.params.surveyId;
-            const userId = req.user.id;
+
+            const userId = req.session.user.id;
+
             const response = await ResponseService.getMyResponse(surveyId, userId);
             return ApiResponse.success(res, {
                 message: "Respuesta obtenida correctamente",
@@ -57,7 +64,9 @@ export const ResponseController = {
     updateResponse: async (req, res) => {
         try {
             const { surveyId, responseId } = req.params;
-            const userId = req.user.id;
+
+            const userId = req.session.user.id;
+
             const data = req.body;
             const updatedResponse = await ResponseService.updateResponse(surveyId, responseId, userId, data);
             return ApiResponse.success(res, {

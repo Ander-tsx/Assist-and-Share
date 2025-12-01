@@ -8,6 +8,17 @@ const eventSchema = new mongoose.Schema(
             required: [true, "El título es obligatorio"],
             trim: true,
         },
+        coverImage: {
+            type: String,
+            default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9VzbIhiRMB3MDNu1_rl05tug8QtXXRpKuUA&s",
+            validate: {
+                validator: function (v) {
+                    if (!v) return true;
+                    return /^https?:\/\/.+/.test(v);
+                },
+                message: "La imagen de portada debe ser una URL válida",
+            },
+        },
         description: {
             type: String,
             trim: true,

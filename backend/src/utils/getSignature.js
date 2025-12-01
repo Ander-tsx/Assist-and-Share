@@ -7,7 +7,7 @@ export const getSignature = (_, res) => {
         const folder = "event/materials";
 
         const signature = cloudinary.utils.api_sign_request(
-            { timestamp, folder },
+            { timestamp, folder, use_filename: true, unique_filename: true },
             process.env.CLOUD_API_SECRET
         );
 
@@ -18,7 +18,7 @@ export const getSignature = (_, res) => {
                 signature,
                 cloudName: process.env.CLOUD_NAME,
                 apiKey: process.env.CLOUD_API_KEY,
-                folder: "event/materials",
+                folder,
             },
         });
     } catch (error) {
