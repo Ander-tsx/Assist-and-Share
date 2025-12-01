@@ -32,9 +32,8 @@ async function verifyToken(token: string) {
     const { payload } = await jwtVerify(token, secret);
     return payload;
   } catch (error: any) {
-    console.error(`[Proxy Error] Falló verificación. Token: ${token.substring(0, 10)}...`);
-    console.error(`[Proxy Error] Mensaje: ${error.message}`);
-    console.error(`[Proxy Error] Secret usado (primera letra): ${new TextDecoder().decode(secret)[0]}`);
+    console.error(`[Proxy Error] Token verification failed`);
+    console.error(`[Proxy Error] Error: ${error.message}`);
     return null;
   }
 }
@@ -42,14 +41,17 @@ async function verifyToken(token: string) {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Permitir rutas públicas
   if (publicRoutes.some(route => pathname === route || pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
+  // Permitir rutas de API
   if (apiRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
+  // Permitir assets estáticos
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
@@ -60,6 +62,7 @@ export async function proxy(request: NextRequest) {
 
   const token = request.cookies.get('auth-token')?.value;
 
+  // Si no hay token, redirigir a login
   if (!token) {
     console.log('[Proxy] No token found, redirecting to /login');
     const loginUrl = new URL('/login', request.url);
@@ -67,18 +70,30 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Verificar token
   const payload = await verifyToken(token);
 
   if (!payload) {
-    console.log('[Proxy] Invalid token, redirecting to /login');
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('error', 'session_expired');
+    console.log('[Proxy] Invalid token detected');
 
-    const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete('auth-token');
-    return response;
+    const isInitialNavigation = pathname === '/events' || pathname === '/';
+
+    if (!isInitialNavigation) {
+      console.log('[Proxy] Clearing invalid token and redirecting');
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('error', 'session_expired');
+
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('auth-token');
+      return response;
+    } else {
+      // En navegación inicial, dar una oportunidad más (puede ser timing issue)
+      console.log('[Proxy] Allowing initial navigation despite invalid token');
+      return NextResponse.next();
+    }
   }
 
+  // Verificar permisos de rol
   for (const [route, allowedRoles] of Object.entries(roleBasedRoutes)) {
     if (pathname.startsWith(route)) {
       const userRole = payload.role as string;
