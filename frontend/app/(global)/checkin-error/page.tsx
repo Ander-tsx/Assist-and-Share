@@ -3,8 +3,9 @@
 import { AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function CheckInError() {
+function CheckInErrorContent() {
   const params = useSearchParams()
   const message = params.get("msg") || "Ha ocurrido un error inesperado."
 
@@ -35,5 +36,17 @@ export default function CheckInError() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function CheckInErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1121] text-white">
+        Cargando error...
+      </div>
+    }>
+      <CheckInErrorContent />
+    </Suspense>
   )
 }
