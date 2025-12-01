@@ -1,0 +1,792 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Assist & Share API",
+        "description": "API para sistema de gestión de eventos",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://YOUR_API_GATEWAY_ID.execute-api.YOUR_REGION.amazonaws.com/{basePath}",
+            "variables": {
+                "basePath": {
+                    "default": "prod"
+                }
+            }
+        }
+    ],
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "summary": "Login de usuario",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login"
+                    }
+                },
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/login",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {},
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "summary": "Registro de usuario",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/register",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/auth/forgot-password": {
+            "post": {
+                "summary": "Solicitar restablecimiento de contraseña",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/forgot-password",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "summary": "Restablecer contraseña",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/reset-password",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/auth/google": {
+            "get": {
+                "summary": "Inicio OAuth Google",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/google",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/auth/google/callback": {
+            "get": {
+                "summary": "Callback OAuth Google",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/auth/google/callback",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "summary": "Obtener todos los usuarios",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "post": {
+                "summary": "Crear usuario",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/users/me": {
+            "get": {
+                "summary": "Obtener usuario actual",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/me",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "put": {
+                "summary": "Actualizar usuario actual",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PUT",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/me",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "patch": {
+                "summary": "Actualizar contraseña",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PATCH",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/me",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "summary": "Obtener usuario por ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "put": {
+                "summary": "Actualizar usuario",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PUT",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "delete": {
+                "summary": "Eliminar usuario",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "DELETE",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/users/{id}/events": {
+            "get": {
+                "summary": "Obtener eventos de un usuario",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/users/{id}/events",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/events": {
+            "get": {
+                "summary": "Obtener todos los eventos",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/events",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "post": {
+                "summary": "Crear evento",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/events",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/events/{id}": {
+            "get": {
+                "summary": "Obtener evento por ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/events/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "put": {
+                "summary": "Actualizar evento",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PUT",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/events/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "delete": {
+                "summary": "Eliminar evento",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "DELETE",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/events/{id}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.id": "method.request.path.id"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/{eventId}": {
+            "post": {
+                "summary": "Registrar asistencia",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/{eventId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.eventId": "method.request.path.eventId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/{assistanceId}": {
+            "delete": {
+                "summary": "Cancelar asistencia",
+                "parameters": [
+                    {
+                        "name": "assistanceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "DELETE",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/{assistanceId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.assistanceId": "method.request.path.assistanceId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/checkin/{assistanceId}": {
+            "patch": {
+                "summary": "Check-in con autenticación",
+                "parameters": [
+                    {
+                        "name": "assistanceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PATCH",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/checkin/{assistanceId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.assistanceId": "method.request.path.assistanceId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "get": {
+                "summary": "Check-in público (QR)",
+                "parameters": [
+                    {
+                        "name": "assistanceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/checkin/{assistanceId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.assistanceId": "method.request.path.assistanceId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/status/{assistanceId}": {
+            "patch": {
+                "summary": "Actualizar estado de asistencia",
+                "parameters": [
+                    {
+                        "name": "assistanceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PATCH",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/status/{assistanceId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.assistanceId": "method.request.path.assistanceId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/me": {
+            "get": {
+                "summary": "Obtener mis asistencias",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/me",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/user/{userId}": {
+            "get": {
+                "summary": "Obtener asistencias de un usuario",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/user/{userId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.userId": "method.request.path.userId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/assistance/event/{eventId}": {
+            "get": {
+                "summary": "Obtener asistencias de un evento",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/assistance/event/{eventId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.eventId": "method.request.path.eventId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys": {
+            "get": {
+                "summary": "Obtener todas las encuestas",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "post": {
+                "summary": "Crear encuesta",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{eventId}": {
+            "get": {
+                "summary": "Obtener encuesta por evento",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{eventId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.eventId": "method.request.path.eventId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{surveyId}": {
+            "patch": {
+                "summary": "Actualizar encuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PATCH",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "delete": {
+                "summary": "Eliminar encuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "DELETE",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{surveyId}/responses": {
+            "post": {
+                "summary": "Enviar respuesta a encuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "POST",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}/responses",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            },
+            "get": {
+                "summary": "Obtener todas las respuestas",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}/responses",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{surveyId}/responses/me": {
+            "get": {
+                "summary": "Obtener mi respuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}/responses/me",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{surveyId}/responses/{responseId}": {
+            "patch": {
+                "summary": "Actualizar respuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "responseId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "PATCH",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}/responses/{responseId}",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId",
+                        "integration.request.path.responseId": "method.request.path.responseId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/surveys/{surveyId}/responses/summary": {
+            "get": {
+                "summary": "Obtener resumen de encuesta",
+                "parameters": [
+                    {
+                        "name": "surveyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/surveys/{surveyId}/responses/summary",
+                    "connectionType": "INTERNET",
+                    "requestParameters": {
+                        "integration.request.path.surveyId": "method.request.path.surveyId"
+                    },
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        },
+        "/api/cloudinary-signature": {
+            "get": {
+                "summary": "Obtener signature de Cloudinary",
+                "x-amazon-apigateway-integration": {
+                    "type": "http_proxy",
+                    "httpMethod": "GET",
+                    "uri": "http://assistandshare.us-east-2.elasticbeanstalk.com.elasticbeanstalk.com/api/cloudinary-signature",
+                    "connectionType": "INTERNET",
+                    "passthroughBehavior": "when_no_match"
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

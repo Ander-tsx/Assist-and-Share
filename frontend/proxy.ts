@@ -84,7 +84,6 @@ export async function proxy(request: NextRequest) {
       loginUrl.searchParams.set('error', 'session_expired');
 
       const response = NextResponse.redirect(loginUrl);
-      response.cookies.delete('auth-token');
       return response;
     } else {
       // En navegación inicial, dar una oportunidad más (puede ser timing issue)
