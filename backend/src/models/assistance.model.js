@@ -37,9 +37,6 @@ assistanceSchema.pre("save", async function (next) {
     if (!event) {
         return next(new Error("El evento no existe"));
     }
-    if (event.date < new Date()) {
-        return next(new Error("No se puede registrar a un evento que ya ocurrió"));
-    }
     next();
 });
 

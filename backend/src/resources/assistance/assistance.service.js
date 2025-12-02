@@ -10,9 +10,9 @@ export const AssistanceService = {
                 throw new ApiError.notFound("Evento no encontrado");
             }
 
-            if (event.date < new Date()) {
-                throw new ApiError.badRequest("No se puede registrar a un evento que ya ocurrió");
-            }
+            // if (event.date < new Date()) {
+            //     throw new ApiError.badRequest("No se puede registrar a un evento que ya ocurrió");
+            // }
 
             const exists = await Assistance.findOne({
                 event: eventId,
