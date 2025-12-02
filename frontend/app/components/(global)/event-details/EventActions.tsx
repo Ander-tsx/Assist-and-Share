@@ -156,7 +156,7 @@ export default function EventActions({
           )}
 
           {/* ESTADO: PENDIENTE */}
-          {isPending && !isPastEvent && (
+          {isPending && !isEventFinished && (
             <div className="flex flex-col">
               <p className="text-yellow-400 text-sm font-medium my-2 flex items-center gap-2">
                 <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
