@@ -8,27 +8,36 @@ export const AuthService = {
         try {
             const { email, password, first_name, last_name, role, speciality } = userData;
 
-            const existingUser = await User.findOne({ email });
-            if (existingUser) {
+            let user = await User.findOne({ email }).setOptions({ skipDeletedFilter: true });
+            if (user && !user.deleted) {
                 throw ApiError.badRequest("El correo ya está registrado");
             }
 
-            const newUser = new User({
-                email,
-                password,
-                first_name,
-                last_name,
-                role,
-                speciality,
-                deleted: false,
-            });
-            await newUser.save();
-
-            const token = jwt.sign({ id: newUser._id, role: newUser.role }, process.env.JWT_SECRET, {
+            if (user && user.deleted) {
+                user.password = password;
+                user.first_name = first_name;
+                user.last_name = last_name;
+                user.role = role;
+                user.speciality = speciality;
+                user.deleted = false;
+                await user.save();
+            } else {
+                user = await User.create({
+                    email,
+                    password,
+                    first_name,
+                    last_name,
+                    role,
+                    speciality,
+                    deleted: false,
+                });
+            }
+            
+            const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
 
-            const userObj = newUser.toObject();
+            const userObj = user.toObject();
             delete userObj.password;
 
             return {

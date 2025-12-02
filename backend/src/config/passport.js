@@ -38,22 +38,35 @@ passport.use(
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
-                let user = await User.findOne({ googleId: profile.id });
+                const googleId = profile.id;
+                const email = profile.emails[0].value;
 
-                if (!user) {
-                    user = new User({
-                        googleId: profile.id,
-                        email: profile.emails[0].value,
-                        first_name: profile.name.givenName,
-                        last_name: profile.name.familyName,
-                        role: "attendee",
-                    });
+                let user = await User.findOne({ googleId }).setOptions({ skipDeletedFilter: true });
+
+                console.log(user)
+
+                if (user && user.deleted === false) {
+                    return done(null, user);
                 }
 
-                await user.save();
-                done(null, user);
+                if (user && user.deleted === true) {
+                    user.deleted = false;
+                    await user.save();
+                    return done(null, user);
+                }
+
+                user = await User.create({
+                    googleId,
+                    email,
+                    first_name: profile.name.givenName,
+                    last_name: profile.name.familyName,
+                    role: "attendee",
+                    deleted: false
+                });
+
+                return done(null, user);
             } catch (error) {
-                done(error);
+                done(error, null);
             }
         }
     )
