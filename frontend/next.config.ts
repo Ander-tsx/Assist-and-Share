@@ -1,6 +1,15 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-    // Configuración por defecto
-};
+import type { NextConfig } from "next";
 
-module.exports = nextConfig;
+const nextConfig: NextConfig = {};
+
+export async function redirects() {
+    return [
+        {
+            source: "/",
+            destination: "/events",
+            permanent: true,
+        },
+    ];
+}
+
+export default nextConfig;
