@@ -125,7 +125,12 @@ export default function Header() {
 
     return (
         // Header principal con fondo transparente/blur
-        <header className="sticky top-0 z-20 w-full bg-gray-950/2 border-b border-gray-800/50 backdrop-blur-md transition-all">
+        <header
+            className={`sticky top-0 z-20 w-full ${isMobileMenuOpen
+                ? 'bg-[#141E2B] border-gray-800'
+                : 'bg-gray-950/2 border-b border-gray-800/50 backdrop-blur-md'
+                }`}
+        >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16 relative">
 
@@ -370,7 +375,7 @@ export default function Header() {
                                 })}
                             </div>
 
-                            <div className="pt-2 border-t border-gray-800">
+                            <div className="pt-2 border-t border-gray-800 flex items-center justify-center">
                                 {user ? (
                                     <LogoutButton />
                                 ) : (
@@ -390,7 +395,12 @@ export default function Header() {
 
             {/* --- BREADCRUMB --- */}
             {(isEventDetails || isAttendees || isEventEdit || isCreateEvent) && (
-                <div className="w-full border-b border-gray-800 bg-gray-900/2 backdrop-blur-sm relative z-20 animate-in fade-in slide-in-from-top-2">
+                <div
+                    className={`w-full border-b border-gray-800 relative z-20 ${isMobileMenuOpen
+                        ? 'bg-[#141E2B]'
+                        : 'bg-gray-900/2 backdrop-blur-sm'
+                        }`}
+                >
                     <div className="max-w-7xl mx-auto px-4 py-2 text-xs font-medium flex items-center gap-2 text-gray-400">
                         <Link href="/events" className="hover:text-white transition">
                             {user?.role === 'presenter' ? 'Ponencias' : 'Eventos'}
