@@ -374,13 +374,13 @@ export default function Header() {
                                 {user ? (
                                     <LogoutButton />
                                 ) : (
-                                    <Link
+                                    <a
                                         href="/login"
-                                        className="block w-full text-center px-4 py-2 rounded-lg bg-white text-black text-sm font-bold hover:bg-gray-200 transition"
+                                        className="py-1 px-5 underline text-gray-300 rounded-lg text-xs hover:cursor-pointer"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         Iniciar Sesión
-                                    </Link>
+                                    </a>
                                 )}
                             </div>
                         </div>

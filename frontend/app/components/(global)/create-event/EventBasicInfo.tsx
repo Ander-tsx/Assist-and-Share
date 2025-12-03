@@ -44,7 +44,7 @@ export default function EventBasicInfo({
                 </div>
 
                 {/* Estos divs no necesitan cambios, ocuparán 1 columna por defecto */}
-                <div className="relative z-22">
+                <div className="relative z-11">
                     <label className="block text-sm text-gray-400 mb-1">Tipo de Evento</label>
                     <CustomSelect
                         value={formData.type}
@@ -54,7 +54,7 @@ export default function EventBasicInfo({
                     />
                 </div>
 
-                <div className="relative z-20">
+                <div className="relative z-10">
                     <label className="block text-sm text-gray-400 mb-1">Presentador</label>
                     <CustomSelect
                         value={formData.presenter}
