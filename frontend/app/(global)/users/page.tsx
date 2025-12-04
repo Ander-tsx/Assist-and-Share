@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import api from "@/lib/api"
-import { User, Mail, Shield, Plus, Trash2, Edit2, Search, X, Briefcase } from "lucide-react"
+// Importamos iconos
+import { User, Mail, Shield, Plus, Trash2, Edit2, Search, X, Briefcase, Lock } from "lucide-react"
+// Importamos Sonner para los Toasts
+import { Toaster, toast } from "sonner"
 
 import LoadingSpinner from "@/app/components/(ui)/LoadingSpinner"
 import ErrorDisplay from "@/app/components/(ui)/ErrorDisplay"
@@ -55,6 +58,10 @@ export default function UsersPage() {
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    // --- Helper para obtener ID del usuario logueado de forma segura ---
+    // Esto soluciona el error de TS casteando a 'any' temporalmente para verificar ambas propiedades
+    const currentUserId = user ? (user as any)._id || (user as any).id : null
+
     // --- Carga de Usuarios ---
     const fetchUsers = async () => {
         setIsLoading(true)
@@ -66,6 +73,7 @@ export default function UsersPage() {
         } catch (err: any) {
             console.error(err)
             setError("Error al cargar usuarios.")
+            toast.error("No se pudieron cargar los usuarios")
         } finally {
             setIsLoading(false)
         }
@@ -106,7 +114,7 @@ export default function UsersPage() {
             last_name: "",
             email: "",
             password: "",
-            role: "presenter", // Fijo como presenter
+            role: "presenter",
             speciality: ""
         })
         setIsCreateModalOpen(true)
@@ -126,14 +134,25 @@ export default function UsersPage() {
     }
 
     const handleDeleteClick = (userToDelete: UserData) => {
+        // --- VALIDACIÓN DE SEGURIDAD (Auto-eliminación) ---
+        if (currentUserId === userToDelete._id) {
+            // Usamos Toast en lugar de alert
+            toast.error("No puedes eliminar tu propia cuenta de administrador.", {
+                description: "Por seguridad, no es posible realizar esta acción sobre uno mismo."
+            })
+            return
+        }
+        // --------------------------------------------------
+
         setSelectedUser(userToDelete)
         setIsDeleteModalOpen(true)
     }
 
-    // --- Submit ---
+    // --- Submit (Crear / Editar) ---
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
+        const toastId = toast.loading(isEditModalOpen ? "Guardando cambios..." : "Creando usuario...")
 
         try {
             if (isEditModalOpen && selectedUser) {
@@ -141,8 +160,10 @@ export default function UsersPage() {
                 if (!updateData.password) delete (updateData as any).password
 
                 await api.put(`/users/${selectedUser._id}`, updateData)
+                toast.success("Usuario actualizado correctamente", { id: toastId })
             } else {
                 await api.post("/users", formData)
+                toast.success("Usuario creado correctamente", { id: toastId })
             }
 
             setIsCreateModalOpen(false)
@@ -150,22 +171,27 @@ export default function UsersPage() {
             fetchUsers()
         } catch (err: any) {
             console.error(err)
-            alert(err.response?.data?.message || "Error al guardar usuario")
+            const errorMsg = err.response?.data?.message || "Error al procesar la solicitud"
+            toast.error(errorMsg, { id: toastId })
         } finally {
             setIsSubmitting(false)
         }
     }
 
+    // --- Ejecutar Eliminación ---
     const executeDelete = async () => {
         if (!selectedUser) return
         setIsSubmitting(true)
+        const toastId = toast.loading("Eliminando usuario...")
+
         try {
             await api.delete(`/users/${selectedUser._id}`)
             setIsDeleteModalOpen(false)
             fetchUsers()
+            toast.success(`Usuario ${selectedUser.first_name} eliminado`, { id: toastId })
         } catch (err: any) {
             console.error(err)
-            alert("Error al eliminar usuario")
+            toast.error("Error al eliminar usuario", { id: toastId })
         } finally {
             setIsSubmitting(false)
         }
@@ -185,6 +211,9 @@ export default function UsersPage() {
 
     return (
         <div className="min-h-screen text-white p-4 md:p-8" style={{ background: "linear-gradient(180deg, #1B293A 0%, #040711 10%)" }}>
+            {/* Componente Toaster para mostrar los mensajes */}
+            <Toaster richColors position="top-center" theme="dark" />
+
             <div className="max-w-7xl mx-auto pb-20">
 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -197,7 +226,7 @@ export default function UsersPage() {
                         onClick={handleCreatePresenter}
                         className="w-full md:w-auto bg-white text-black hover:bg-white/90 hover:rounded-3xl duration-300 hover:cursor-pointer px-6 py-3 rounded-xl font-base flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition-all"
                     >
-                        Crear Ponente
+                        <Plus size={20} /> Crear Ponente
                     </button>
                 </div>
 
@@ -229,42 +258,92 @@ export default function UsersPage() {
                 {error && <ErrorDisplay message={error} />}
 
                 <div className="bg-transparent md:bg-[#0B1121] md:border md:border-gray-800 rounded-2xl md:overflow-hidden md:shadow-xl">
-                    {/* ... (Vistas Móvil y Escritorio de la tabla se mantienen igual) ... */}
+
+                    {/* --- VISTA MÓVIL (Cards) --- */}
                     <div className="block md:hidden space-y-4">
                         {isLoading ? (<div className="flex justify-center p-8"><LoadingSpinner /></div>) : filteredUsers.length === 0 ? (<div className="text-center p-8 text-gray-500">No se encontraron usuarios.</div>) : (
-                            filteredUsers.map((u) => (
-                                <div key={u._id} className="bg-[#0B1121] border border-gray-800 rounded-xl p-5 flex flex-col gap-4 shadow-lg">
-                                    <div className="flex justify-between items-start gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-lg font-bold text-blue-400 border border-gray-700 shadow-inner">{u.first_name[0]}{u.last_name[0]}</div>
-                                            <div><div className="font-bold text-white text-lg">{u.first_name} {u.last_name}</div>{getRoleBadge(u.role)}</div>
+                            filteredUsers.map((u) => {
+                                // Lógica de visualización para auto-eliminación
+                                const isSelf = currentUserId === u._id;
+
+                                return (
+                                    <div key={u._id} className="bg-[#0B1121] border border-gray-800 rounded-xl p-5 flex flex-col gap-4 shadow-lg">
+                                        <div className="flex justify-between items-start gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-lg font-bold text-blue-400 border border-gray-700 shadow-inner">{u.first_name[0]}{u.last_name[0]}</div>
+                                                <div><div className="font-bold text-white text-lg">{u.first_name} {u.last_name}</div>{getRoleBadge(u.role)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-900/50 p-2 rounded-lg border border-gray-800/50"><Mail size={14} className="text-gray-500" /><span className="truncate">{u.email}</span></div>
+                                            {u.speciality && (<div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-900/50 p-2 rounded-lg border border-gray-800/50"><Briefcase size={14} className="text-gray-500" /><span className="truncate">{u.speciality}</span></div>)}
+                                        </div>
+                                        <div className="flex gap-3 pt-2 border-t border-gray-800">
+                                            <button onClick={() => handleEditUser(u)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-2 rounded-lg text-sm font-base flex items-center justify-center gap-2 hover:cursor-pointer">
+                                                <Edit2 size={16} /> Editar
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleDeleteClick(u)}
+                                                disabled={isSelf}
+                                                className={`
+                                                    flex-1 py-2 rounded-lg text-sm font-base flex items-center justify-center gap-2 transition-all
+                                                    ${isSelf
+                                                        ? "bg-gray-800/30 text-gray-600 border border-gray-800 cursor-not-allowed"
+                                                        : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:cursor-pointer"
+                                                    }
+                                                `}
+                                            >
+                                                {isSelf ? <Lock size={16} /> : <Trash2 size={16} />}
+                                                {isSelf ? "Bloqueado" : "Eliminar"}
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-900/50 p-2 rounded-lg border border-gray-800/50"><Mail size={14} className="text-gray-500" /><span className="truncate">{u.email}</span></div>
-                                        {u.speciality && (<div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-900/50 p-2 rounded-lg border border-gray-800/50"><Briefcase size={14} className="text-gray-500" /><span className="truncate">{u.speciality}</span></div>)}
-                                    </div>
-                                    <div className="flex gap-3 pt-2 border-t border-gray-800">
-                                        <button onClick={() => handleEditUser(u)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-2 rounded-lg text-sm font-base flex items-center justify-center gap-2 hover:cursor-pointer">Editar</button>
-                                        <button onClick={() => handleDeleteClick(u)} className="flex-1 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 py-2 rounded-lg text-sm font-base flex items-center justify-center gap-2 hover:cursor-pointer">Eliminar</button>
-                                    </div>
-                                </div>
-                            ))
+                                )
+                            })
                         )}
                     </div>
+
+                    {/* --- VISTA ESCRITORIO (Tabla) --- */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead><tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider bg-gray-900/20"><th className="p-4 font-medium">Usuario</th><th className="p-4 font-medium">Rol</th><th className="p-4 font-medium">Especialidad</th><th className="p-4 font-medium text-right">Acciones</th></tr></thead>
                             <tbody className="divide-y divide-gray-800">
                                 {isLoading ? (<tr><td colSpan={4} className="p-8"><LoadingSpinner /></td></tr>) : filteredUsers.length === 0 ? (<tr><td colSpan={4} className="p-12 text-center text-gray-500">No se encontraron usuarios.</td></tr>) : (
-                                    filteredUsers.map((u) => (
-                                        <tr key={u._id} className="hover:bg-white/5 transition-colors group">
-                                            <td className="p-4"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-sm font-bold text-blue-400 border border-gray-700">{u.first_name[0]}{u.last_name[0]}</div><div><div className="font-medium text-white">{u.first_name} {u.last_name}</div><div className="text-xs text-gray-500 flex items-center gap-1 hover:cursor-pointer"><Mail size={10} /> {u.email}</div></div></div></td>
-                                            <td className="p-4">{getRoleBadge(u.role)}</td>
-                                            <td className="p-4 text-sm text-gray-400">{u.speciality || "-"}</td>
-                                            <td className="p-4 text-right"><div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => handleEditUser(u)} className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors hover:cursor-pointer" title="Editar"><Edit2 size={16} /></button><button onClick={() => handleDeleteClick(u)} className="p-2 rounded-lg hover:bg-red-900/20 text-gray-400 hover:text-red-400 transition-colors hover:cursor-pointer" title="Eliminar"><Trash2 size={16} /></button></div></td>
-                                        </tr>
-                                    ))
+                                    filteredUsers.map((u) => {
+                                        // Lógica de visualización para auto-eliminación
+                                        const isSelf = currentUserId === u._id;
+
+                                        return (
+                                            <tr key={u._id} className="hover:bg-white/5 transition-colors group">
+                                                <td className="p-4"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-sm font-bold text-blue-400 border border-gray-700">{u.first_name[0]}{u.last_name[0]}</div><div><div className="font-medium text-white">{u.first_name} {u.last_name}</div><div className="text-xs text-gray-500 flex items-center gap-1 hover:cursor-pointer"><Mail size={10} /> {u.email}</div></div></div></td>
+                                                <td className="p-4">{getRoleBadge(u.role)}</td>
+                                                <td className="p-4 text-sm text-gray-400">{u.speciality || "-"}</td>
+                                                <td className="p-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => handleEditUser(u)} className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors hover:cursor-pointer" title="Editar">
+                                                            <Edit2 size={16} />
+                                                        </button>
+
+                                                        {/* Botón condicional */}
+                                                        {isSelf ? (
+                                                            <button disabled className="p-2 rounded-lg text-gray-700 cursor-not-allowed" title="No puedes eliminar tu propia cuenta">
+                                                                <Shield size={16} />
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleDeleteClick(u)}
+                                                                className="p-2 rounded-lg hover:bg-red-900/20 text-gray-400 hover:text-red-400 transition-colors hover:cursor-pointer"
+                                                                title="Eliminar"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })
                                 )}
                             </tbody>
                         </table>
