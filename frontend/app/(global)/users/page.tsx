@@ -62,14 +62,16 @@ export default function UsersPage() {
     // Esto soluciona el error de TS casteando a 'any' temporalmente para verificar ambas propiedades
     const currentUserId = user ? (user as any)._id || (user as any).id : null
 
-    // --- Carga de Usuarios ---
     const fetchUsers = async () => {
         setIsLoading(true)
         setError("")
         try {
             const { data } = await api.get("/users")
-            setUsers(data.value.results)
-            setFilteredUsers(data.value.results)
+            const onlyNonAdmins = data.value.results.filter((u: UserData) => u.role !== 'admin')
+
+            setUsers(onlyNonAdmins)
+            setFilteredUsers(onlyNonAdmins)
+
         } catch (err: any) {
             console.error(err)
             setError("Error al cargar usuarios.")
@@ -226,7 +228,7 @@ export default function UsersPage() {
                         onClick={handleCreatePresenter}
                         className="w-full md:w-auto bg-white text-black hover:bg-white/90 hover:rounded-3xl duration-300 hover:cursor-pointer px-6 py-3 rounded-xl font-base flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition-all"
                     >
-                        <Plus size={20} /> Crear Ponente
+                        Crear Ponente
                     </button>
                 </div>
 
@@ -249,7 +251,7 @@ export default function UsersPage() {
                                 { value: "all", label: "Todos los roles" },
                                 { value: "attendee", label: "Asistentes" },
                                 { value: "presenter", label: "Ponentes" },
-                                { value: "admin", label: "Administradores" },
+                                // { value: "admin", label: "Administradores" },
                             ]}
                         />
                     </div>
@@ -403,7 +405,7 @@ export default function UsersPage() {
                                                     options={[
                                                         { value: "attendee", label: "Asistente" },
                                                         { value: "presenter", label: "Ponente" },
-                                                        { value: "admin", label: "Administrador" },
+                                                        // { value: "admin", label: "Administrador" },
                                                     ]}
                                                     placeholder="Seleccionar rol"
                                                 />
@@ -425,7 +427,7 @@ export default function UsersPage() {
                                 <div className="space-y-4 border-t border-gray-800 pt-4">
                                     <div>
                                         <label className="block text-xs text-gray-500 uppercase font-bold mb-1">Correo Electrónico</label>
-                                        <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-white focus:border-blue-500 focus:outline-none" />
+                                        <input required disabled={true} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-gray-800/50 border border-gray-800 rounded-xl px-3 py-2.5 text-gray-400 cursor-not-allowed" />
                                     </div>
 
                                     <div>

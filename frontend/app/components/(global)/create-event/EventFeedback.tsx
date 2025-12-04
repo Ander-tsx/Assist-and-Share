@@ -177,7 +177,7 @@ export default function EventFeedback({
                         <div className="space-y-3">
                             {questions.length === 0 && (
                                 <div className="text-center py-10 bg-gray-900/50 rounded-xl border border-gray-800">
-                                    <p className="text-gray-400 mb-3">Comienza agregando preguntas para tu audiencia.</p>
+                                    <p className="text-gray-400 mb-3">Añade preguntas para tu audiencia (Calificables de 1 a 5 estrellas)</p>
                                 </div>
                             )}
 
