@@ -427,7 +427,7 @@ export default function UsersPage() {
                                 <div className="space-y-4 border-t border-gray-800 pt-4">
                                     <div>
                                         <label className="block text-xs text-gray-500 uppercase font-bold mb-1">Correo Electrónico</label>
-                                        <input required disabled={true} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-gray-800/50 border border-gray-800 rounded-xl px-3 py-2.5 text-gray-400 cursor-not-allowed" />
+                                        <input required disabled={isEditModalOpen} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-gray-800/50 border border-gray-800 rounded-xl px-3 py-2.5 text-gray-400" />
                                     </div>
 
                                     <div>
