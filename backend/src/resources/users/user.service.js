@@ -2,6 +2,7 @@ import { User } from "../../models/user.model.js";
 import { Event } from "../../models/event.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { buildQuery } from "../../utils/queryBuilder.js";
+import { Assistance } from "../../models/assistance.model.js";
 
 export const UserService = {
     getAllUsers: async (queryOptions) => {
@@ -46,6 +47,16 @@ export const UserService = {
         const user = await User.findById(userId);
         if (!user) {
             throw ApiError.notFound("Usuario no encontrado");
+        }
+
+        // Si es ponente, ver si tiene eventos asociados
+        if (user.role === "presenter") {
+            const events = await Event.find({ presenter: userId });
+            if (events.length > 0) {
+                await Event.updateMany({ presenter: userId }, { presenter: null });
+            }
+        } else if (user.role === "attendee") {
+            await Assistance.deleteMany({ user: userId });
         }
 
         const deleted = await user.logicalDelete();

@@ -56,9 +56,10 @@ const eventSchema = new mongoose.Schema(
         presenter: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "El presentador es obligatorio"],
+            //required: [true, "El presentador es obligatorio"],
             validate: {
                 validator: async function (v) {
+                    if (!v) return true;
                     const user = await mongoose.model("User").findById(v);
                     return user && user.role === "presenter";
                 },
