@@ -25,6 +25,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // Estado para errores específicos de cada campo
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -44,10 +47,33 @@ function LoginForm() {
     }
   }, [searchParams]);
 
+  const validateForm = () => {
+    const errors: { email?: string; password?: string } = {};
+    // Regex estándar para emails
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+    if (!email.trim()) {
+      errors.email = "Por favor, ingresa tu correo electrónico.";
+    } else if (!emailRegex.test(email)) {
+      errors.email = "El formato del correo es incorrecto (ej: usuario@dominio.com).";
+    }
+
+    if (!password) {
+      errors.password = "Ingresa tu contraseña para continuar.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    
+    // Si la validación falla, no enviamos nada
+    if (!validateForm()) return;
+
+    setLoading(true);
 
     try {
       const { data } = await api.post("/auth/login", { email, password });
@@ -56,15 +82,9 @@ function LoginForm() {
         throw new Error("No se recibió el token de autenticación");
       }
 
-      // CORRECCIÓN 1: Añadir 'Secure' para que funcione en móviles/HTTPS
-      // Nota: En localhost (http) 'Secure' no estorba, pero en producción es obligatorio.
       document.cookie = `auth-token=${data.value.token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax; Secure`;
 
       await checkAuth();
-
-      // CORRECCIÓN 2: Hard Redirect
-      // En lugar de router.refresh() y router.push(), forzamos al navegador
-      // a cargar la página desde cero. Esto elimina cualquier caché fantasma del móvil.
       window.location.href = "/events";
 
     } catch (err) {
@@ -75,9 +95,8 @@ function LoginForm() {
           : "Error al iniciar sesión";
 
       setError(message);
-      setLoading(false); // Solo quitamos loading si falla. Si va bien, dejamos que cargue la nueva página.
+      setLoading(false);
     }
-    // Nota: Deje los comentarios de chat pq solo el y dios saben como funciona el cache segun x navegadores
   };
 
   const handleGoogleLogin = () => {
@@ -89,24 +108,32 @@ function LoginForm() {
       <AuthCard title="Iniciar Sesión" subtitle="Accede a tu espacio personal">
         {error && <AlertMessage type="error" message={error} />}
 
-        <form onSubmit={handleCredentialsLogin} className="space-y-4">
+        {/* 'noValidate' desactiva las burbujas nativas del navegador */}
+        <form onSubmit={handleCredentialsLogin} className="space-y-4" noValidate>
           <InputField
             id="email"
             type="email"
             label="Correo electrónico"
             value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              // Limpiamos el error en cuanto el usuario escribe
+              if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: undefined });
+            }}
             placeholder="correo@ejemplo.com"
+            error={fieldErrors.email}
           />
 
           <PasswordInput
             id="password"
             label="Contraseña"
             value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: undefined });
+            }}
             placeholder="C0n7r4s3ñ4"
+            error={fieldErrors.password}
           />
 
           <AuthLink

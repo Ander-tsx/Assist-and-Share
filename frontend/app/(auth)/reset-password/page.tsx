@@ -15,6 +15,9 @@ import AuthLink from "../../components/(auth)/AuthLink";
 function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
+  
+  // Estado para errores de validación
+  const [fieldErrors, setFieldErrors] = useState<{ password?: string }>({});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,17 +35,40 @@ function ResetPasswordForm() {
     }
   }, [searchParams]);
 
+  // Validación estricta de contraseña
+  const validateForm = () => {
+    const errors: { password?: string } = {};
+    const hasNumber = /\d/;
+    const hasSpecial = /[\W_]/;
+
+    if (!password) {
+      errors.password = "La nueva contraseña es obligatoria.";
+    } else if (password.length < 6) {
+      errors.password = "La contraseña debe tener al menos 6 caracteres.";
+    } else if (!hasNumber.test(password)) {
+      errors.password = "Debe incluir al menos un número.";
+    } else if (!hasSpecial.test(password)) {
+      errors.password = "Debe incluir al menos un carácter especial (@, #, etc).";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccess(false);
 
     if (!token) {
       setError("Token no válido");
-      setLoading(false);
       return;
     }
+
+    // Validación antes de enviar
+    if (!validateForm()) return;
+
+    setLoading(true);
 
     try {
       const { data } = await api.post("/auth/reset-password", {
@@ -52,7 +78,8 @@ function ResetPasswordForm() {
 
       if (data.success) {
         setSuccess(true);
-        router.push("/login");
+        // Esperamos un poco antes de redirigir para que el usuario vea el éxito
+        setTimeout(() => router.push("/login"), 2000);
       }
     } catch (err) {
       const message =
@@ -71,7 +98,7 @@ function ResetPasswordForm() {
       <AuthCard title="Restablecer Contraseña" subtitle="Ingresa tu nueva contraseña">
         {error && <AlertMessage type="error" message={error} />}
 
-        {token && !success && (
+        {token && !success && !error && (
           <AlertMessage type="info" message="Token recibido. Establece tu nueva contraseña." />
         )}
 
@@ -83,15 +110,19 @@ function ResetPasswordForm() {
           />
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <PasswordInput
             id="password"
             label="Nueva contraseña"
             value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              // Limpiar error al escribir
+              if (fieldErrors.password) setFieldErrors({});
+            }}
             placeholder="C0n7r4s3ñ4"
             disabled={!token || success}
+            error={fieldErrors.password}
           />
 
           <SubmitButton

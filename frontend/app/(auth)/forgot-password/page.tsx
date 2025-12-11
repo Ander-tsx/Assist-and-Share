@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
 import api from "../../../lib/api";
 import { AxiosError } from "axios";
 import AuthLayout from "../../components/(auth)/AuthLayout";
@@ -14,16 +13,37 @@ import BackButton from "../../components/(auth)/BackButton";
 
 function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
-  
+  // Estado para errores de campo
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string }>({});
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // Validación manual
+  const validateForm = () => {
+    const errors: { email?: string } = {};
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+    if (!email.trim()) {
+      errors.email = "El correo es obligatorio para recuperar tu cuenta.";
+    } else if (!emailRegex.test(email)) {
+      errors.email = "Ingresa un correo válido (ej: nombre@dominio.com).";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccess(false);
+
+    // Ejecutar validación antes de enviar
+    if (!validateForm()) return;
+
+    setLoading(true);
 
     try {
       const { data } = await api.post("/auth/forgot-password", { email });
@@ -39,7 +59,7 @@ function ForgotPasswordForm() {
         ? err.message 
         : "Error al enviar el correo";
       
-      setError(message);
+      setError(message); 
     } finally {
       setLoading(false);
     }
@@ -48,8 +68,7 @@ function ForgotPasswordForm() {
   return (
     <AuthLayout>
       <BackButton />
-
-      <AuthCard title="Recuperar contraseña" subtitle="Recibiras las instrucciones en tu correo electrónico">
+      <AuthCard title="Recuperar contraseña" subtitle="Recibirás las instrucciones en tu correo electrónico">
         {success && (
           <AlertMessage
             type="success"
@@ -60,15 +79,19 @@ function ForgotPasswordForm() {
 
         {error && <AlertMessage type="error" message={error} />}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <InputField
             id="email"
             type="email"
             label="Correo electrónico"
             value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              // Limpiar error al escribir
+              if (fieldErrors.email) setFieldErrors({});
+            }}
             placeholder="correo@ejemplo.com"
+            error={fieldErrors.email}
           />
 
           <SubmitButton loading={loading} loadingText="Enviando...">
